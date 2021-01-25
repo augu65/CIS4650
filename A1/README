@@ -1,0 +1,26 @@
+This directory contains a scanner to collect all relevant tags for a SGML language.
+
+To build the scanner, type "make" in the current directory. To test the code
+type "java Scanner < [filename]" and the relavant information will be displayed.
+
+To rebuild the scanner, type "make clean" and type "make" again.
+
+NOTE: This code uses the SampleScanner code that was provided. 
+
+Future Improvements: 
+- Add in more important tags to ensure that all relevant information is collected.
+- Create a more indepth hierarchy about when certain tags are important.
+
+Test Plan:
+- Tested all valid tag combinations
+- Tested all relevant tags and nesting inside irrelevant tags
+- Tested all left over tags are printed in stderr
+- Tested mismatched tags are printed in stderr
+- Tested all word combinations
+- Tested all numbers including +, - and  .
+- Tested all hyphenated posibilities
+- Tested all apostrophized word posibilities
+- Tested blank files
+- Tested P in irrelevant and relevant tags
+- Tested attributes and spaces in open tags
+- Tested spaces in closed tags
