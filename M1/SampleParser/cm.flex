@@ -1,7 +1,6 @@
 /*
-  Created By: Fei Song
-  File Name: tiny.flex
-  To Build: jflex tiny.flex
+  File Name: cm.flex
+  To Build: jflex cm.flex
 
   and then after the parser is created
     javac Lexer.java
@@ -85,9 +84,10 @@ number = {digit}+
 /* A identifier integer is a word beginning a letter between A and
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
-letter = [a-zA-Z]
-identifier = {letter}+
-   
+id = [_a-zA-Z][_a-zA-Z0-9]*
+
+/* Regex to find all comments*/
+comment = "/*"[^*/]*"*/"
 %%
 /* ------------------------Lexical Rules Section---------------------- */
    
@@ -95,17 +95,14 @@ identifier = {letter}+
    This section contains regular expressions and actions, i.e. Java
    code, that will be executed when the scanner matches the associated
    regular expression. */
-   
 "if"               { return symbol(sym.IF); }
-"then"             { return symbol(sym.THEN); }
 "else"             { return symbol(sym.ELSE); }
 "end"              { return symbol(sym.END); }
-"repeat"           { return symbol(sym.REPEAT); }
-"until"            { return symbol(sym.UNTIL); }
-"read"             { return symbol(sym.READ); }
-"write"            { return symbol(sym.WRITE); }
-":="               { return symbol(sym.ASSIGN); }
-"="                { return symbol(sym.EQ); }
+"int"              { return symbol(sym.INT); }
+"return"           { return symbol (sym.RETURN);}
+"void"             { return symbol (sym.VOID);}
+"while"            { return symbol (sym.WHILE);}
+"="                { return symbol(sym.ASSIGN); }
 "<"                { return symbol(sym.LT); }
 ">"                { return symbol(sym.GT); }
 "+"                { return symbol(sym.PLUS); }
@@ -115,8 +112,17 @@ identifier = {letter}+
 "("                { return symbol(sym.LPAREN); }
 ")"                { return symbol(sym.RPAREN); }
 ";"                { return symbol(sym.SEMI); }
+"<="               { return symbol(sym.LE); }
+">="               { return symbol(sym.GE); }
+"=="               { return symbol(sym.EQ); }
+"!="               { return symbol(sym.NEQ); }         
+"["                { return symbol(sym.LBLOCKPAREN); }
+"]"                { return symbol(sym.RBLOCKPAREN); }
+"{"                { return symbol(sym.LCURLY); }
+"}"                { return symbol(sym.RCURLY); }
+","                { return symbol(sym.COMMA); }
 {number}           { return symbol(sym.NUM, yytext()); }
-{identifier}       { return symbol(sym.ID, yytext()); }
-{WhiteSpace}+      { /* skip whitespace */ }   
-"{"[^\}]*"}"       { /* skip comments */ }
+{id}+               { return symbol(sym.ID, yytext()); }
+{WhiteSpace}+      { /* skip whitespace */ }
+{comment}          {/*skips comments */}
 .                  { return symbol(sym.ERROR); }

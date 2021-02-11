@@ -71,14 +71,14 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
-terminal IF, THEN, ELSE, END, REPEAT, UNTIL, READ, WRITE;
-terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI;
+terminal IF, ELSE, INT, RETURN, VOID, WHILE, THEN, END, REPEAT, UNTIL, READ, WRITE ;
+terminal ASSIGN, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, LE, GE, EQ, NEQ, LBLOCKPAREN, RBLOCKPAREN, LCURLY, RCURLY, COMMA;
 terminal String ID, NUM;
 terminal ERROR;
    
 non terminal Exp program1;
 non terminal ExpList program, stmt_seq;
-non terminal Exp stmt, if_stmt, repeat_stmt, assign_stmt, read_stmt, write_stmt;
+non terminal Exp stmt, if_stmt, while_stmt, assign_stmt, read_stmt, write_stmt;
 non terminal Exp exp, simple_exp, term, factor;   
 
 /* ----------------------------Grammar Section-------------------- */
@@ -110,7 +110,7 @@ stmt_seq     ::= stmt_seq:s1 SEMI stmt:s2
 
 stmt         ::= if_stmt:i
                  {: RESULT = i; :}
-               | repeat_stmt:r
+               | while_stmt:r
                  {: RESULT = r; :}
                | assign_stmt:a
                  {: RESULT = a; :}
@@ -126,7 +126,7 @@ if_stmt      ::= IF:i exp:e THEN stmt_seq:s END
                  {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
                ;
 
-repeat_stmt  ::= REPEAT:r stmt_seq:s UNTIL exp:e
+while_stmt  ::= REPEAT:r stmt_seq:s UNTIL exp:e
                  {: RESULT = new RepeatExp(rleft, rright, s, e); :}
                ;
 

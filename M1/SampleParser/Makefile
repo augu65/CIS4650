@@ -1,11 +1,11 @@
 JAVA=java
 JAVAC=javac
-JFLEX=~/projects/jflex/bin/jflex
-CLASSPATH=-cp ~/projects/java-cup-11b.jar:.
-CUP=$(JAVA) $(CLASSPATH) java_cup.Main
-#JFLEX=jflex
-#CLASSPATH=-cp /usr/share/java/cup.jar:.
-#CUP=cup
+#JFLEX=~/projects/jflex/bin/jflex
+#CLASSPATH=-cp ~/projects/java-cup-11b.jar:.
+#CUP=$(JAVA) $(CLASSPATH) java_cup.Main
+JFLEX=jflex
+CLASSPATH=-cp /usr/share/java/cup.jar:.
+CUP=cup
 
 all: Main.class
 
@@ -14,12 +14,12 @@ Main.class: absyn/*.java parser.java sym.java Lexer.java ShowTreeVisitor.java Sc
 %.class: %.java
 	$(JAVAC) $(CLASSPATH) $^
 
-Lexer.java: tiny.flex
-	$(JFLEX) tiny.flex
+Lexer.java: cm.flex
+	$(JFLEX) cm.flex
 
-parser.java: tiny.cup
-	#$(CUP) -dump -expect 3 tiny.cup
-	$(CUP) -expect 3 tiny.cup
+parser.java: cm.cup
+	#$(CUP) -dump -expect 3 cm.cup
+	$(CUP) -expect 3 cm.cup
 
 clean:
 	rm -f parser.java Lexer.java sym.java *.class absyn/*.class *~
