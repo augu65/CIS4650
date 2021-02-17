@@ -97,7 +97,6 @@ comment = "/*"[^*/]*"*/"
    regular expression. */
 "if"               { return symbol(sym.IF); }
 "else"             { return symbol(sym.ELSE); }
-"end"              { return symbol(sym.END); }
 "int"              { return symbol(sym.INT); }
 "return"           { return symbol (sym.RETURN);}
 "void"             { return symbol (sym.VOID);}
