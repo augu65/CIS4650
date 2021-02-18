@@ -71,17 +71,15 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
-terminal IF, THEN, ELSE, END, REPEAT, UNTIL, READ, WRITE;
-terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI;
-terminal ID, NUM;
+terminal IF, ELSE, INT, RETURN, VOID, WHILE;
+terminal ASSIGN, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI, LE, GE, EQ, NEQ, LBLOCKPAREN, RBLOCKPAREN, LCURLY, RCURLY, COMMA;
+terminal String ID, NUM;
 terminal ERROR;
+
    
 non terminal program;
-
 /* ----------------------------Grammar Section-------------------- */
    
 start with program;
 
-
 program	     ::= ;
-
