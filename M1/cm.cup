@@ -77,9 +77,104 @@ terminal String ID, NUM;
 terminal ERROR;
 
    
-non terminal program;
+non terminal program, declaration_list, declaration, var_declaration, fun_declaration, type_specifier, compound_stmt;
+non terminal params, param_list, param, local_declarations, statement_list, statement;
+non terminal expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression;
+non terminal var, simple_expression, additive_expression, relop, addop, term, mulop, factor, call, args, arg_list;
 /* ----------------------------Grammar Section-------------------- */
-   
+
+//ADD PRECEDENCE 
+
 start with program;
 
-program	     ::= ;
+program	            ::= declaration_list
+                     ;
+declaration_list     ::= declaration_list declaration
+                     | declaration
+                     ;
+declaration          ::= var_declaration
+                     | fun_declaration
+                     ;
+var_declaration      ::= type_specifier ID SEMI
+                     | type_specifier ID LBLOCKPAREN NUM RBLOCKPAREN SEMI
+                     ;
+type_specifier       ::= INT
+                     | VOID
+                     ;
+fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt
+                     ;
+params               ::= param_list
+                     | VOID
+                     ;
+param_list           ::= param_list COMMA param
+                     | param
+                     ;
+param                ::= type_specifier ID
+                     | type_specifier ID LBLOCKPAREN RBLOCKPAREN
+                     ;
+compound_stmt        ::= LCURLY local_declarations statement_list RCURLY
+                     ;
+local_declarations   ::= local_declarations var_declaration
+                     | 
+                     ;
+statement_list       ::= statement_list statement
+                     |
+                     ;
+statement            ::= expression_stmt
+                     | compound_stmt
+                     | selection_stmt
+                     | iteration_stmt
+                     | return_stmt
+                     ;
+expression_stmt      ::= expression SEMI
+                     | SEMI
+                     ;
+selection_stmt       ::= IF LPAREN expression RPAREN statement
+                     | IF LPAREN expression RPAREN statement ELSE statement
+                     ;
+iteration_stmt       ::= WHILE LPAREN expression RPAREN statement
+                     ;
+return_stmt          ::= RETURN expression SEMI 
+                     | RETURN SEMI
+                     ;
+expression           ::= var ASSIGN expression
+                     | simple_expression
+                     ; 
+var                  ::= ID 
+                     | ID LBLOCKPAREN expression RBLOCKPAREN
+                     ;
+simple_expression    ::= additive_expression relop additive_expression
+                     | additive_expression
+                     ;
+relop                ::= LE
+                     | LT
+                     | GT
+                     | GE
+                     | EQ
+                     | NEQ
+                     ;
+additive_expression  ::= additive_expression addop term
+                     | term
+                     ;
+addop                ::= PLUS
+                     | MINUS
+                     ;
+term                 ::= term mulop factor
+                     | factor
+                     ;
+mulop                ::= TIMES
+                     | OVER
+                     ;
+factor               ::= LPAREN expression RPAREN
+                     | var
+                     | call
+                     | NUM
+                     ;
+call                 ::= ID LPAREN args RPAREN
+                     ;
+args                 ::= arg_list 
+                     |
+                     ;
+arg_list             ::= arg_list COMMA expression
+                     | expression
+                     ;
