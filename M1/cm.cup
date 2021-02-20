@@ -77,37 +77,51 @@ terminal String ID, NUM;
 terminal ERROR;
 
    
-non terminal program, declaration_list, declaration, var_declaration, fun_declaration, type_specifier, compound_stmt;
-non terminal params, param_list, param, local_declarations, statement_list, statement;
-non terminal expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression;
-non terminal var, simple_expression, additive_expression, relop, addop, term, mulop, factor, call, args, arg_list;
+non terminal ExpList program, declaration_list;
+non terminal Exp params, param_list, param, local_declarations, statement_list, statement, declaration, var_declaration, fun_declaration, type_specifier, compound_stmt;
+non terminal Exp expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression;
+non terminal Exp var, simple_expression, additive_expression, relop, addop, term, mulop, factor, call, args, arg_list;
 /* ----------------------------Grammar Section-------------------- */
 
 //ADD PRECEDENCE 
 
 start with program;
 
-program	            ::= declaration_list
+program	            ::= declaration_list:l
+                     {: RESULT = l; :}
                      ;
-declaration_list     ::= declaration_list declaration
-                     | declaration
+declaration_list     ::= declaration_list:l declaration:d
+                     {: ExpList t = l;
+                        while( t.tail != null )
+                        t = t.tail;
+                        t.tail = new ExpList(d, null);
+                        RESULT = l; :}
+                     | declaration:d
+                     {: RESULT = new ExpList(d, null); :}
                      ;
-declaration          ::= var_declaration
-                     | fun_declaration
+declaration          ::= var_declaration:v
+                     {: RESULT = v; :}
+                     | fun_declaration:f
+                     {: RESULT = f; :}
                      ;
 var_declaration      ::= type_specifier ID SEMI
                      | type_specifier ID LBLOCKPAREN NUM RBLOCKPAREN SEMI
                      ;
-type_specifier       ::= INT
-                     | VOID
+type_specifier       ::= INT:i
+                     {: RESULT = new TypeExp(ileft, iright, i); :}
+                     | VOID:v
+                     {: RESULT = new TypeExp(vleft, vright, v); :}
                      ;
 fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt
                      ;
-params               ::= param_list
-                     | VOID
+params               ::= param_list:l
+                     {: RESULT = l; :}
+                     | VOID:v
+                     {: RESULT = new TypeExp(vleft, vright, v);  :}
                      ;
 param_list           ::= param_list COMMA param
-                     | param
+                     | param:p
+                     {: RESULT = p; :}
                      ;
 param                ::= type_specifier ID
                      | type_specifier ID LBLOCKPAREN RBLOCKPAREN
@@ -120,14 +134,20 @@ local_declarations   ::= local_declarations var_declaration
 statement_list       ::= statement_list statement
                      |
                      ;
-statement            ::= expression_stmt
-                     | compound_stmt
-                     | selection_stmt
-                     | iteration_stmt
-                     | return_stmt
+statement            ::= expression_stmt:e
+                     {: RESULT = e; :}
+                     | compound_stmt:c
+                     {: RESULT = c; :}
+                     | selection_stmt:s
+                     {: RESULT = s; :}
+                     | iteration_stmt:i
+                     {: RESULT = i; :}
+                     | return_stmt:r
+                     {: RESULT = r; :}
                      ;
 expression_stmt      ::= expression SEMI
-                     | SEMI
+                     | SEMI:s
+                     {: RESULT = null; :}
                      ;
 selection_stmt       ::= IF LPAREN expression RPAREN statement
                      | IF LPAREN expression RPAREN statement ELSE statement
@@ -138,37 +158,55 @@ return_stmt          ::= RETURN expression SEMI
                      | RETURN SEMI
                      ;
 expression           ::= var ASSIGN expression
-                     | simple_expression
+                     | simple_expression:s
+                     {: RESULT = s; :}
                      ; 
-var                  ::= ID 
+var                  ::= ID:i
+                     {: RESULT = new VarExp(ileft, iright, i); :}
                      | ID LBLOCKPAREN expression RBLOCKPAREN
                      ;
 simple_expression    ::= additive_expression relop additive_expression
-                     | additive_expression
+                     | additive_expression:a
+                     {: RESULT = a; :}
                      ;
-relop                ::= LE
-                     | LT
-                     | GT
-                     | GE
-                     | EQ
-                     | NEQ
+relop                ::= LE:le
+                     {: RESULT = new OpExp(leleft, leright, null, OpExp.LE, null); :}
+                     | LT:lt
+                     {: RESULT = new OpExp(ltleft, ltright, null, OpExp.LT, null); :}
+                     | GT:gt
+                     {: RESULT = new OpExp(gtleft, gtright, null, OpExp.GT, null); :}
+                     | GE:ge
+                     {: RESULT = new OpExp(geleft, geright, null, OpExp.GE, null); :}
+                     | EQ:e
+                     {: RESULT = new OpExp(eleft, eright, null, OpExp.EQ, null); :}
+                     | NEQ:n
+                     {: RESULT = new OpExp(nleft, nright, null, OpExp.NEQ, null); :}
                      ;
 additive_expression  ::= additive_expression addop term
-                     | term
+                     | term:t
+                     {: RESULT = t; :}
                      ;
-addop                ::= PLUS
-                     | MINUS
+addop                ::= PLUS:p
+                     {: RESULT = new OpExp(pleft, pright, null, OpExp.PLUS, null); :}
+                     | MINUS:m
+                     {: RESULT = new OpExp(mleft, mright, null, OpExp.MINUS, null); :}
                      ;
 term                 ::= term mulop factor
-                     | factor
+                     | factor:f
+                     {: RESULT = f; :}
                      ;
-mulop                ::= TIMES
-                     | OVER
+mulop                ::= TIMES:t
+                     {: RESULT = new OpExp(tleft, tright, null, OpExp.TIMES, null); :}
+                     | OVER:o
+                     {: RESULT = new OpExp(oleft, oright, null, OpExp.OVER, null); :}
                      ;
 factor               ::= LPAREN expression RPAREN
-                     | var
-                     | call
-                     | NUM
+                     | var:v
+                     {: RESULT = v; :}
+                     | call:c
+                     {: RESULT = c; :}
+                     | NUM:n
+                     {: RESULT = new IntExp(nleft, nright, n); :}
                      ;
 call                 ::= ID LPAREN args RPAREN
                      ;
@@ -176,5 +214,6 @@ args                 ::= arg_list
                      |
                      ;
 arg_list             ::= arg_list COMMA expression
-                     | expression
+                     | expression:e
+                     {: RESULT = e; :}
                      ;
