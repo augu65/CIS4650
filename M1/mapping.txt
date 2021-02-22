@@ -1,0 +1,4 @@
+AssignExp -> var_declaration
+ExpList -> declaration_list
+VarExp -> ID, NUM
+TypeExp -> type_specifier

@@ -1,12 +1,17 @@
 package absyn;
 
 public class TypeExp extends Exp {
-    public Object name;
+    public final static int INT = 0;
+    public final static int VOID = 1;
 
-    public TypeExp(int row, int col, Object name) {
+    public Object name;
+    public int type;
+
+    public TypeExp(int row, int col, Object name, int type) {
         this.row = row;
         this.col = col;
         this.name = name;
+        this.type = type;
     }
 
     public void accept(AbsynVisitor visitor, int level) {

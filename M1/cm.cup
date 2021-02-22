@@ -93,7 +93,7 @@ program	            ::= declaration_list:l
 declaration_list     ::= declaration_list:l declaration:d
                      {: ExpList t = l;
                         while( t.tail != null )
-                        t = t.tail;
+                           t = t.tail;
                         t.tail = new ExpList(d, null);
                         RESULT = l; :}
                      | declaration:d
@@ -101,23 +101,26 @@ declaration_list     ::= declaration_list:l declaration:d
                      ;
 declaration          ::= var_declaration:v
                      {: RESULT = v; :}
-                     | fun_declaration:f
+                     | var_declaration:f
                      {: RESULT = f; :}
                      ;
-var_declaration      ::= type_specifier ID SEMI
-                     | type_specifier ID LBLOCKPAREN NUM RBLOCKPAREN SEMI
+var_declaration      ::= type_specifier:t ID:i SEMI
+                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i), null, t); :}
+                     | type_specifier:t ID:i LBLOCKPAREN NUM:n RBLOCKPAREN SEMI
+                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i), new IntExp(nleft, nright, n), t); :}
                      ;
 type_specifier       ::= INT:i
-                     {: RESULT = new TypeExp(ileft, iright, i); :}
+                     {: RESULT = new TypeExp(ileft, iright, i, 0); :}
                      | VOID:v
-                     {: RESULT = new TypeExp(vleft, vright, v); :}
+                     {: RESULT = new TypeExp(vleft, vright, v, 1); :}
                      ;
 fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt
+                     {: //RESULT = new  :}
                      ;
 params               ::= param_list:l
                      {: RESULT = l; :}
                      | VOID:v
-                     {: RESULT = new TypeExp(vleft, vright, v);  :}
+                     {: RESULT = new TypeExp(vleft, vright, v, 0);  :}
                      ;
 param_list           ::= param_list COMMA param
                      | param:p
@@ -146,7 +149,7 @@ statement            ::= expression_stmt:e
                      {: RESULT = r; :}
                      ;
 expression_stmt      ::= expression SEMI
-                     | SEMI:s
+                     | SEMI
                      {: RESULT = null; :}
                      ;
 selection_stmt       ::= IF LPAREN expression RPAREN statement

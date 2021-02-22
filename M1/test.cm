@@ -1,4 +1,3 @@
-int i;
 int j[10];
 void a;
 void a[8];

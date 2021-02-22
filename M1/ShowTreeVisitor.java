@@ -20,8 +20,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.println("AssignExp:");
     level++;
-    exp.lhs.accept(this, level);
-    exp.rhs.accept(this, level);
+    exp.type.accept(this, level);
+    exp.name.accept(this, level);
+    if (exp.num != null)
+      exp.num.accept(this, level);
   }
 
   public void visit(IfExp exp, int level) {
@@ -99,7 +101,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(TypeExp exp, int level) {
     indent(level);
-    System.out.println("TypeExp: " + exp.name);
+    System.out.print("TypeExp:");
+    switch (exp.type) {
+      case OpExp.PLUS:
+        System.out.println(" INT ");
+        break;
+      case OpExp.MINUS:
+        System.out.println(" VOID ");
+        break;
+      default:
+        System.out.println("Unrecognized type at line " + exp.row + " and column " + exp.col);
+    }
   }
 
 }
