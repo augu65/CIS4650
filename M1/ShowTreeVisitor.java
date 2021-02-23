@@ -114,4 +114,22 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
+  public void visit(FunExp exp, int level) {
+    indent(level);
+    System.out.print("FunExp: ");
+    level++;
+    exp.type.accept(this, level);
+    exp.params.accept(this, level);
+    exp.compound.accept(this, level);
+    exp.name.accept(this, level);
+  }
+
+  public void visit(ParListExp exp, int level) {
+    indent(level);
+    System.out.print("ParListExp: ");
+    level++;
+    exp.paramlist.accept(this, level);
+    exp.param.accept(this, level);
+  }
+
 }

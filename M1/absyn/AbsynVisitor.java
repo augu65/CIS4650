@@ -22,4 +22,7 @@ public interface AbsynVisitor {
 
   public void visit(TypeExp exp, int level);
 
+  public void visit(FunExp exp, int level);
+
+  public void visit(ParListExp exp, int level);
 }

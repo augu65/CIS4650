@@ -114,15 +114,16 @@ type_specifier       ::= INT:i
                      | VOID:v
                      {: RESULT = new TypeExp(vleft, vright, v, 1); :}
                      ;
-fun_declaration      ::= type_specifier ID LPAREN params RPAREN compound_stmt
-                     {: //RESULT = new  :}
+fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
+                     {: RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i), p, c); :}
                      ;
 params               ::= param_list:l
                      {: RESULT = l; :}
                      | VOID:v
                      {: RESULT = new TypeExp(vleft, vright, v, 0);  :}
                      ;
-param_list           ::= param_list COMMA param
+param_list           ::= param_list:pl COMMA param:p
+                     {: RESULT = new ParListExp(plleft, plright, pl, p); :}
                      | param:p
                      {: RESULT = p; :}
                      ;
