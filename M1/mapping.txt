@@ -5,3 +5,9 @@ IntExp -> NUM
 OPExp -> * / and stuff
 VarExp -> ID
 FunExp -> fun_declaration
+ParamExp ->
+ParListExp ->
+CompExp ->
+IfExp
+ReturnExp
+RepeatExp

@@ -101,13 +101,13 @@ declaration_list     ::= declaration_list:l declaration:d
                      ;
 declaration          ::= var_declaration:v
                      {: RESULT = v; :}
-                     | var_declaration:f
+                     | fun_declaration:f
                      {: RESULT = f; :}
                      ;
 var_declaration      ::= type_specifier:t ID:i SEMI
-                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i), null, t); :}
+                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), null, t); :}
                      | type_specifier:t ID:i LBLOCKPAREN NUM:n RBLOCKPAREN SEMI
-                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i), new IntExp(nleft, nright, n), t); :}
+                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), new IntExp(nleft, nright, n), t); :}
                      ;
 type_specifier       ::= INT:i
                      {: RESULT = new TypeExp(ileft, iright, i, 0); :}
@@ -115,7 +115,7 @@ type_specifier       ::= INT:i
                      {: RESULT = new TypeExp(vleft, vright, v, 1); :}
                      ;
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
-                     {: RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i), p, c); :}
+                     {: RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null), p, c); :}
                      ;
 params               ::= param_list:l
                      {: RESULT = l; :}
@@ -127,15 +127,20 @@ param_list           ::= param_list:pl COMMA param:p
                      | param:p
                      {: RESULT = p; :}
                      ;
-param                ::= type_specifier ID
-                     | type_specifier ID LBLOCKPAREN RBLOCKPAREN
+param                ::= type_specifier:t ID:i
+                     {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
+                     | type_specifier:t ID:i LBLOCKPAREN RBLOCKPAREN
+                     {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
                      ;
-compound_stmt        ::= LCURLY local_declarations statement_list RCURLY
+compound_stmt        ::= LCURLY local_declarations:l statement_list:s RCURLY
+                     {: RESULT = new CompExp(lleft, lright, l, s, 0); :}
                      ;
-local_declarations   ::= local_declarations var_declaration
+local_declarations   ::= local_declarations:l var_declaration:v
+                     {: RESULT = new CompExp(lleft, lright, l, v, 1); :}
                      | 
                      ;
-statement_list       ::= statement_list statement
+statement_list       ::= statement_list:l statement:s
+                     {: RESULT = new CompExp(lleft, lright, l, s, 2); :}
                      |
                      ;
 statement            ::= expression_stmt:e
@@ -149,27 +154,36 @@ statement            ::= expression_stmt:e
                      | return_stmt:r
                      {: RESULT = r; :}
                      ;
-expression_stmt      ::= expression SEMI
+expression_stmt      ::= expression:e SEMI
+                     {: RESULT=e; :}
                      | SEMI
                      {: RESULT = null; :}
                      ;
-selection_stmt       ::= IF LPAREN expression RPAREN statement
-                     | IF LPAREN expression RPAREN statement ELSE statement
+selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
+                     {: RESULT = new IfExp(ileft, iright, e, s, null); :}
+                     | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
+                     {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
                      ;
-iteration_stmt       ::= WHILE LPAREN expression RPAREN statement
+iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
+                     {: RESULT = new RepeatExp(wleft, wright, e, s); :}
                      ;
-return_stmt          ::= RETURN expression SEMI 
-                     | RETURN SEMI
+return_stmt          ::= RETURN:r expression:e SEMI 
+                     {: RESULT = new ReturnExp(rleft, rright, e); :}
+                     | RETURN:r SEMI
+                     {: RESULT = new ReturnExp(rleft, rright, null); :}
                      ;
-expression           ::= var ASSIGN expression
+expression           ::= var:v ASSIGN expression:e
+                     {: RESULT = new CompExp(vleft, vright, v, e, 4); :}
                      | simple_expression:s
                      {: RESULT = s; :}
                      ; 
 var                  ::= ID:i
-                     {: RESULT = new VarExp(ileft, iright, i); :}
-                     | ID LBLOCKPAREN expression RBLOCKPAREN
+                     {: RESULT = new VarExp(ileft, iright, i, null); :}
+                     | ID:i LBLOCKPAREN expression:e RBLOCKPAREN
+                     {: RESULT = new VarExp(ileft, iright, i, e); :}
                      ;
-simple_expression    ::= additive_expression relop additive_expression
+simple_expression    ::= additive_expression:a1 relop:r additive_expression:a2
+                     {: RESULT = new MathExp(a1left, a2right, a1, r, a2, 0); :}
                      | additive_expression:a
                      {: RESULT = a; :}
                      ;
@@ -186,7 +200,8 @@ relop                ::= LE:le
                      | NEQ:n
                      {: RESULT = new OpExp(nleft, nright, null, OpExp.NEQ, null); :}
                      ;
-additive_expression  ::= additive_expression addop term
+additive_expression  ::= additive_expression:a1 addop:a2 term:t
+                     {: RESULT = new MathExp(a1left, a2right, a1, a2, t, 1); :}
                      | term:t
                      {: RESULT = t; :}
                      ;
@@ -195,7 +210,8 @@ addop                ::= PLUS:p
                      | MINUS:m
                      {: RESULT = new OpExp(mleft, mright, null, OpExp.MINUS, null); :}
                      ;
-term                 ::= term mulop factor
+term                 ::= term:t mulop:m factor:f
+                     {: RESULT = new MathExp(tleft, tright, t, m, f, 2); :}
                      | factor:f
                      {: RESULT = f; :}
                      ;
@@ -204,7 +220,8 @@ mulop                ::= TIMES:t
                      | OVER:o
                      {: RESULT = new OpExp(oleft, oright, null, OpExp.OVER, null); :}
                      ;
-factor               ::= LPAREN expression RPAREN
+factor               ::= LPAREN expression:e RPAREN
+                     {: RESULT=e; :}
                      | var:v
                      {: RESULT = v; :}
                      | call:c
@@ -212,12 +229,15 @@ factor               ::= LPAREN expression RPAREN
                      | NUM:n
                      {: RESULT = new IntExp(nleft, nright, n); :}
                      ;
-call                 ::= ID LPAREN args RPAREN
+call                 ::= ID:i LPAREN args:a RPAREN
+                     {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null), a); :}
                      ;
-args                 ::= arg_list 
+args                 ::= arg_list:a
+                     {: RESULT = a; :}
                      |
                      ;
-arg_list             ::= arg_list COMMA expression
+arg_list             ::= arg_list:a COMMA expression:e
+                     {: RESULT = new CompExp(aleft, aright, a, e, 3); :}
                      | expression:e
                      {: RESULT = e; :}
                      ;

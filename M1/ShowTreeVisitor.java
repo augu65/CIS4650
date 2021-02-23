@@ -91,6 +91,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit(VarExp exp, int level) {
     indent(level);
     System.out.println("VarExp: " + exp.name);
+    if (exp.exprs != null)
+      exp.exprs.accept(this, level);
   }
 
   public void visit(WriteExp exp, int level) {
@@ -103,10 +105,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.print("TypeExp:");
     switch (exp.type) {
-      case OpExp.PLUS:
+      case TypeExp.INT:
         System.out.println(" INT ");
         break;
-      case OpExp.MINUS:
+      case TypeExp.VOID:
         System.out.println(" VOID ");
         break;
       default:
@@ -116,12 +118,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(FunExp exp, int level) {
     indent(level);
-    System.out.print("FunExp: ");
+    System.out.println("FunExp: ");
     level++;
+    System.out.println("1");
     exp.type.accept(this, level);
+    System.out.println("2");
     exp.params.accept(this, level);
+    System.out.println("3");
     exp.compound.accept(this, level);
+    System.out.println("4");
     exp.name.accept(this, level);
+    System.out.println("5");
   }
 
   public void visit(ParListExp exp, int level) {
@@ -130,6 +137,76 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     exp.paramlist.accept(this, level);
     exp.param.accept(this, level);
+  }
+
+  public void visit(ParamExp exp, int level) {
+    indent(level);
+    System.out.println("ParamExp: ");
+    level++;
+    exp.name.accept(this, level);
+    exp.type.accept(this, level);
+  }
+
+  public void visit(CompExp exp, int level) {
+    indent(level);
+    switch (exp.stmt) {
+      case CompExp.COMP:
+        System.out.println("CompExp: ");
+        break;
+      case CompExp.LOCDEC:
+        System.out.println("LocalDeclaration: ");
+        break;
+      case CompExp.STMTLIST:
+        System.out.println("StatementList: ");
+        break;
+      case CompExp.ARGLIST:
+        System.out.println("ArgList: ");
+        break;
+      case CompExp.EXPS:
+        System.out.println("Expression: ");
+        break;
+      default:
+        System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
+    }
+    level++;
+    exp.first.accept(this, level);
+    exp.second.accept(this, level);
+  }
+
+  public void visit(ReturnExp exp, int level) {
+    indent(level);
+    System.out.println("ReturnExp: ");
+    level++;
+    exp.exps.accept(this, level);
+  }
+
+  public void visit(MathExp exp, int level) {
+    indent(level);
+    switch (exp.type) {
+      case MathExp.SIMPLE:
+        System.out.println("SimpleExp: ");
+        break;
+      case MathExp.ADDITIVE:
+        System.out.println("AdditiveExp: ");
+        break;
+      case MathExp.TERM:
+        System.out.println("TermExp: ");
+        break;
+      default:
+        System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
+    }
+    level++;
+    exp.lhs.accept(this, level);
+    exp.rhs.accept(this, level);
+    exp.op.accept(this, level);
+  }
+
+  public void visit(CallExp exp, int level) {
+    indent(level);
+    System.out.println("CallExp: ");
+    level++;
+    exp.args.accept(this, level);
+    exp.name.accept(this, level);
   }
 
 }

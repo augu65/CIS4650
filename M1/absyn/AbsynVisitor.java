@@ -25,4 +25,15 @@ public interface AbsynVisitor {
   public void visit(FunExp exp, int level);
 
   public void visit(ParListExp exp, int level);
+
+  public void visit(ParamExp exp, int level);
+
+  public void visit(CompExp exp, int level);
+
+  public void visit(ReturnExp exp, int level);
+
+  public void visit(MathExp exp, int level);
+
+  public void visit(CallExp exp, int level);
+
 }
