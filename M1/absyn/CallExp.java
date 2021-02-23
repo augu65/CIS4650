@@ -2,9 +2,9 @@ package absyn;
 
 public class CallExp extends Exp {
     public VarExp name;
-    public Exp args;
+    public ExpList args;
 
-    public CallExp(int row, int col, VarExp name, Exp args) {
+    public CallExp(int row, int col, VarExp name, ExpList args) {
         this.row = row;
         this.col = col;
         this.name = name;

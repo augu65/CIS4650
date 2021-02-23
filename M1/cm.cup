@@ -77,13 +77,16 @@ terminal String ID, NUM;
 terminal ERROR;
 
    
-non terminal ExpList program, declaration_list;
-non terminal Exp params, param_list, param, local_declarations, statement_list, statement, declaration, var_declaration, fun_declaration, type_specifier, compound_stmt;
+non terminal ExpList program, declaration_list, local_declarations, statement_list, compound_stmt, statement, arg_list, args;
+non terminal Exp params, param_list, param, declaration, var_declaration, fun_declaration, type_specifier;
 non terminal Exp expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression;
-non terminal Exp var, simple_expression, additive_expression, relop, addop, term, mulop, factor, call, args, arg_list;
-/* ----------------------------Grammar Section-------------------- */
+non terminal Exp var, simple_expression, additive_expression, relop, addop, term, mulop, factor, call;
 
-//ADD PRECEDENCE 
+precedence nonassoc NEQ, LE, LT, GE, GT, EQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, OVER;
+precedence left ELSE;
+/* ----------------------------Grammar Section-------------------- */
 
 start with program;
 
@@ -120,8 +123,9 @@ fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_s
 params               ::= param_list:l
                      {: RESULT = l; :}
                      | VOID:v
-                     {: RESULT = new TypeExp(vleft, vright, v, 0);  :}
+                     {: RESULT = new TypeExp(vleft, vright, v, 1);  :}
                      ;
+//should be list
 param_list           ::= param_list:pl COMMA param:p
                      {: RESULT = new ParListExp(plleft, plright, pl, p); :}
                      | param:p
@@ -133,26 +137,51 @@ param                ::= type_specifier:t ID:i
                      {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
                      ;
 compound_stmt        ::= LCURLY local_declarations:l statement_list:s RCURLY
-                     {: RESULT = new CompExp(lleft, lright, l, s, 0); :}
+                     {: ExpList t = l;
+                        if(t != null){
+                           while( t.tail != null ){
+                              t = t.tail;
+                           }
+                           t.tail = s;
+                           RESULT = l;
+                        } else {
+                           RESULT = s;
+                        } :}
                      ;
-local_declarations   ::= local_declarations:l var_declaration:v
-                     {: RESULT = new CompExp(lleft, lright, l, v, 1); :}
+local_declarations   ::= local_declarations:d var_declaration:v
+                     {: ExpList t = d;
+                        if(t != null){
+                           while( t.tail != null )
+                              t = t.tail;
+                           t.tail = new ExpList(v, null);
+                           RESULT = d;
+                        }else{
+                           RESULT = new ExpList(v, null);
+                        } :}
                      | 
                      ;
 statement_list       ::= statement_list:l statement:s
-                     {: RESULT = new CompExp(lleft, lright, l, s, 2); :}
+                     {: ExpList t = l;
+                        if(t != null){
+                           while( t.tail != null )
+                              t = t.tail;
+                           t.tail = s;
+                           RESULT = l;
+                        } else{
+                           RESULT = s;
+                        } :}
                      |
                      ;
 statement            ::= expression_stmt:e
-                     {: RESULT = e; :}
+                     {: RESULT = new ExpList(e, null); :}
                      | compound_stmt:c
                      {: RESULT = c; :}
                      | selection_stmt:s
-                     {: RESULT = s; :}
+                     {: RESULT = new ExpList(s, null); :}
                      | iteration_stmt:i
-                     {: RESULT = i; :}
+                     {: RESULT = new ExpList(i, null); :}
                      | return_stmt:r
-                     {: RESULT = r; :}
+                     {: RESULT = new ExpList(r, null); :}
                      ;
 expression_stmt      ::= expression:e SEMI
                      {: RESULT=e; :}
@@ -235,9 +264,18 @@ call                 ::= ID:i LPAREN args:a RPAREN
 args                 ::= arg_list:a
                      {: RESULT = a; :}
                      |
+                     {: RESULT = null; :}
                      ;
 arg_list             ::= arg_list:a COMMA expression:e
-                     {: RESULT = new CompExp(aleft, aright, a, e, 3); :}
+                     {: ExpList t = a;
+                        if(t != null){
+                           while( t.tail != null )
+                              t = t.tail;
+                           t.tail = new ExpList(e, null);
+                           RESULT = a;
+                        }else{
+                           RESULT = new ExpList(e, null);
+                        } :}
                      | expression:e
-                     {: RESULT = e; :}
+                     {: RESULT = new ExpList(e, null); :}
                      ;

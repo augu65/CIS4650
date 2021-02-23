@@ -70,8 +70,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
         System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
     level++;
-    exp.left.accept(this, level);
-    exp.right.accept(this, level);
+    if (exp.left != null)
+      exp.left.accept(this, level);
+    if (exp.right != null)
+      exp.right.accept(this, level);
   }
 
   public void visit(ReadExp exp, int level) {
@@ -85,7 +87,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println("RepeatExp:");
     level++;
     exp.exps.accept(this, level);
-    exp.test.accept(this, level);
+    if (exp.test != null)
+      exp.test.accept(this, level);
   }
 
   public void visit(VarExp exp, int level) {
@@ -120,20 +123,16 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.println("FunExp: ");
     level++;
-    System.out.println("1");
     exp.type.accept(this, level);
-    System.out.println("2");
-    exp.params.accept(this, level);
-    System.out.println("3");
-    exp.compound.accept(this, level);
-    System.out.println("4");
     exp.name.accept(this, level);
-    System.out.println("5");
+    exp.params.accept(this, level);
+    if (exp.compound != null)
+      exp.compound.accept(this, level);
   }
 
   public void visit(ParListExp exp, int level) {
     indent(level);
-    System.out.print("ParListExp: ");
+    System.out.println("ParListExp: ");
     level++;
     exp.paramlist.accept(this, level);
     exp.param.accept(this, level);
@@ -143,8 +142,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.println("ParamExp: ");
     level++;
-    exp.name.accept(this, level);
     exp.type.accept(this, level);
+    exp.name.accept(this, level);
   }
 
   public void visit(CompExp exp, int level) {
@@ -169,8 +168,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
         System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
     }
     level++;
-    exp.first.accept(this, level);
-    exp.second.accept(this, level);
+    if (exp.first != null)
+      exp.first.accept(this, level);
+    if (exp.second != null)
+      exp.second.accept(this, level);
   }
 
   public void visit(ReturnExp exp, int level) {
@@ -197,16 +198,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
     level++;
     exp.lhs.accept(this, level);
-    exp.rhs.accept(this, level);
     exp.op.accept(this, level);
+    exp.rhs.accept(this, level);
   }
 
   public void visit(CallExp exp, int level) {
     indent(level);
     System.out.println("CallExp: ");
     level++;
-    exp.args.accept(this, level);
     exp.name.accept(this, level);
+    if (exp.args != null)
+      exp.args.accept(this, level);
   }
 
 }

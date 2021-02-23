@@ -9,11 +9,9 @@ public class ParamExp extends Exp {
         this.col = col;
         this.name = name;
         this.type = type;
-        System.out.println("test");
     }
 
     public void accept(AbsynVisitor visitor, int level) {
-        System.out.println("test");
         visitor.visit(this, level);
     }
 }

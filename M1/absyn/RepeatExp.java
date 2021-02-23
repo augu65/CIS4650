@@ -2,9 +2,9 @@ package absyn;
 
 public class RepeatExp extends Exp {
   public Exp exps;
-  public Exp test;
+  public ExpList test;
 
-  public RepeatExp(int row, int col, Exp exps, Exp test) {
+  public RepeatExp(int row, int col, Exp exps, ExpList test) {
     this.row = row;
     this.col = col;
     this.exps = exps;

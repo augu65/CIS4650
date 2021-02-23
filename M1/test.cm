@@ -1,6 +1,7 @@
 int j[10];
 void a;
 void a[8];
-int test(int t){
-    int k[1];
+void main(void){
+    while (x > 1) {
+    } 
 }
