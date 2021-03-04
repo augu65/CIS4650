@@ -1,0 +1,13 @@
+AssignExp -> var_declaration
+ExpList -> declaration_list
+TypeExp -> type_specifier INT VOID
+IntExp -> NUM
+OPExp -> * / and stuff
+VarExp -> ID
+FunExp -> fun_declaration
+ParamExp ->
+ParListExp ->
+CompExp ->
+IfExp
+ReturnExp
+RepeatExp
