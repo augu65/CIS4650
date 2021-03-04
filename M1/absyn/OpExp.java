@@ -12,16 +12,12 @@ public class OpExp extends Exp {
   public final static int GE = 8;
   public final static int NEQ = 9;
 
-  public Exp left;
   public int op;
-  public Exp right;
 
-  public OpExp(int row, int col, Exp left, int op, Exp right) {
+  public OpExp(int row, int col, int op) {
     this.row = row;
     this.col = col;
-    this.left = left;
     this.op = op;
-    this.right = right;
   }
 
   public void accept(AbsynVisitor visitor, int level) {

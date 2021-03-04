@@ -1,7 +1,7 @@
 /*
-  Created by: Fei Song
-  File Name: tiny.cup
-  To Build: java java_cup.Main < tiny.cup
+  Created by: Kaylee Bigelow and Jonah Stegman
+  File Name: cm.cup
+  To Build: java java_cup.Main < cm.cup
 */
    
    
@@ -125,7 +125,6 @@ params               ::= param_list:l
                      | VOID:v
                      {: RESULT = new TypeExp(vleft, vright, v, 1);  :}
                      ;
-//should be list
 param_list           ::= param_list:pl COMMA param:p
                      {: RESULT = new ParListExp(plleft, plright, pl, p); :}
                      | param:p
@@ -202,7 +201,7 @@ return_stmt          ::= RETURN:r expression:e SEMI
                      {: RESULT = new ReturnExp(rleft, rright, null); :}
                      ;
 expression           ::= var:v ASSIGN expression:e
-                     {: RESULT = new CompExp(vleft, vright, v, e, 4); :}
+                     {: RESULT = new CompExp(vleft, vright, v, e); :}
                      | simple_expression:s
                      {: RESULT = s; :}
                      ; 
@@ -217,17 +216,17 @@ simple_expression    ::= additive_expression:a1 relop:r additive_expression:a2
                      {: RESULT = a; :}
                      ;
 relop                ::= LE:le
-                     {: RESULT = new OpExp(leleft, leright, null, OpExp.LE, null); :}
+                     {: RESULT = new OpExp(leleft, leright, OpExp.LE); :}
                      | LT:lt
-                     {: RESULT = new OpExp(ltleft, ltright, null, OpExp.LT, null); :}
+                     {: RESULT = new OpExp(ltleft, ltright, OpExp.LT); :}
                      | GT:gt
-                     {: RESULT = new OpExp(gtleft, gtright, null, OpExp.GT, null); :}
+                     {: RESULT = new OpExp(gtleft, gtright, OpExp.GT); :}
                      | GE:ge
-                     {: RESULT = new OpExp(geleft, geright, null, OpExp.GE, null); :}
+                     {: RESULT = new OpExp(geleft, geright, OpExp.GE); :}
                      | EQ:e
-                     {: RESULT = new OpExp(eleft, eright, null, OpExp.EQ, null); :}
+                     {: RESULT = new OpExp(eleft, eright, OpExp.EQ); :}
                      | NEQ:n
-                     {: RESULT = new OpExp(nleft, nright, null, OpExp.NEQ, null); :}
+                     {: RESULT = new OpExp(nleft, nright, OpExp.NEQ); :}
                      ;
 additive_expression  ::= additive_expression:a1 addop:a2 term:t
                      {: RESULT = new MathExp(a1left, a2right, a1, a2, t, 1); :}
@@ -235,9 +234,9 @@ additive_expression  ::= additive_expression:a1 addop:a2 term:t
                      {: RESULT = t; :}
                      ;
 addop                ::= PLUS:p
-                     {: RESULT = new OpExp(pleft, pright, null, OpExp.PLUS, null); :}
+                     {: RESULT = new OpExp(pleft, pright, OpExp.PLUS); :}
                      | MINUS:m
-                     {: RESULT = new OpExp(mleft, mright, null, OpExp.MINUS, null); :}
+                     {: RESULT = new OpExp(mleft, mright, OpExp.MINUS); :}
                      ;
 term                 ::= term:t mulop:m factor:f
                      {: RESULT = new MathExp(tleft, tright, t, m, f, 2); :}
@@ -245,9 +244,9 @@ term                 ::= term:t mulop:m factor:f
                      {: RESULT = f; :}
                      ;
 mulop                ::= TIMES:t
-                     {: RESULT = new OpExp(tleft, tright, null, OpExp.TIMES, null); :}
+                     {: RESULT = new OpExp(tleft, tright, OpExp.TIMES); :}
                      | OVER:o
-                     {: RESULT = new OpExp(oleft, oright, null, OpExp.OVER, null); :}
+                     {: RESULT = new OpExp(oleft, oright, OpExp.OVER); :}
                      ;
 factor               ::= LPAREN expression:e RPAREN
                      {: RESULT=e; :}

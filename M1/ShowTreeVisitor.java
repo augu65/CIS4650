@@ -8,6 +8,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     for (int i = 0; i < level * SPACES; i++)
       System.out.print(" ");
   }
+  
 
   public void visit(ExpList expList, int level) {
     while (expList != null) {
@@ -32,8 +33,13 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     exp.test.accept(this, level);
     exp.thenpart.accept(this, level);
-    if (exp.elsepart != null)
+    if (exp.elsepart != null){
+      level--;
+      indent(level);
+      System.out.println("ElseExp:");
+      level++;
       exp.elsepart.accept(this, level);
+    }
   }
 
   public void visit(IntExp exp, int level) {
@@ -66,20 +72,19 @@ public class ShowTreeVisitor implements AbsynVisitor {
       case OpExp.GT:
         System.out.println(" > ");
         break;
+      case OpExp.LE:
+        System.out.println(" <= ");
+        break;
+      case OpExp.GE:
+        System.out.println(" >= ");
+        break;
+      case OpExp.NEQ:
+        System.out.println(" != ");
+        break;
       default:
         System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
     level++;
-    if (exp.left != null)
-      exp.left.accept(this, level);
-    if (exp.right != null)
-      exp.right.accept(this, level);
-  }
-
-  public void visit(ReadExp exp, int level) {
-    indent(level);
-    System.out.println("ReadExp:");
-    exp.input.accept(this, ++level);
   }
 
   public void visit(RepeatExp exp, int level) {
@@ -96,12 +101,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println("VarExp: " + exp.name);
     if (exp.exprs != null)
       exp.exprs.accept(this, level);
-  }
-
-  public void visit(WriteExp exp, int level) {
-    indent(level);
-    System.out.println("WriteExp:");
-    exp.output.accept(this, ++level);
   }
 
   public void visit(TypeExp exp, int level) {
@@ -148,25 +147,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(CompExp exp, int level) {
     indent(level);
-    switch (exp.stmt) {
-      case CompExp.COMP:
-        System.out.println("CompExp: ");
-        break;
-      case CompExp.LOCDEC:
-        System.out.println("LocalDeclaration: ");
-        break;
-      case CompExp.STMTLIST:
-        System.out.println("StatementList: ");
-        break;
-      case CompExp.ARGLIST:
-        System.out.println("ArgList: ");
-        break;
-      case CompExp.EXPS:
-        System.out.println("Expression: ");
-        break;
-      default:
-        System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
-    }
+    System.out.println("Expression: ");
     level++;
     if (exp.first != null)
       exp.first.accept(this, level);
