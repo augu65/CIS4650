@@ -1,7 +1,15 @@
 int j[10];
 void a;
 void a[8];
-void main(void){
-    while (x > 1) {
-    } 
+
+ int main( test){
+    j = j + 0;
+    if (){
+        tetst =test;
+    }
+    while(){
+    t=1&1;
+    }
+
+    t=t*();
 }

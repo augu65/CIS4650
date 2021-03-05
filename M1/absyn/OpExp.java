@@ -11,7 +11,7 @@ public class OpExp extends Exp {
   public final static int LE = 7;
   public final static int GE = 8;
   public final static int NEQ = 9;
-
+  public final static int ERROR = 10;
   public int op;
 
   public OpExp(int row, int col, int op) {

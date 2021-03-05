@@ -3,7 +3,7 @@ package absyn;
 public class TypeExp extends Exp {
     public final static int INT = 0;
     public final static int VOID = 1;
-
+    public final static int ERROR = 2;
     public Object name;
     public int type;
 
