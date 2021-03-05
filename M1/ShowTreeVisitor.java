@@ -27,7 +27,18 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
   public void visit(IfExp exp, int level) {
+    indent(level);
+    System.out.println("IfExp:");
+    level++;
     if (exp.test != null) {
+      exp.test.accept(this, level);
+    } else {
+      indent(level);
+      System.out.println("Error test case not found");
+    }
+    exp.thenpart.accept(this, level);
+    if (exp.elsepart != null) {
+      level--;
       indent(level);
       System.out.println("IfExp:");
       level++;
@@ -45,7 +56,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(IntExp exp, int level) {
     indent(level);
-    System.out.println("IntExp: " + exp.value);
+    if (exp.value == null)
+      System.out.println("IntExp: Error value not found");
+    else
+      System.out.println("IntExp: " + exp.value);
   }
 
   public void visit(OpExp exp, int level) {
@@ -82,6 +96,9 @@ public class ShowTreeVisitor implements AbsynVisitor {
       case OpExp.NEQ:
         System.out.println(" != ");
         break;
+      case OpExp.ERROR:
+        System.out.println(" Unrecognized symbol found ");
+        break;
       default:
         System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
@@ -92,30 +109,39 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.println("RepeatExp:");
     level++;
-    exp.exps.accept(this, level);
-    if (exp.test != null)
+    if (exp.test != null) {
       exp.test.accept(this, level);
+    } else {
+      indent(level);
+      System.out.println("Error test case not found");
+    }
+    if (exp.exps != null)
+      exp.exps.accept(this, level);
   }
 
   public void visit(VarExp exp, int level) {
     indent(level);
-    System.out.println("VarExp: " + exp.name);
+    if (exp.name == null) {
+      System.out.println("VarExp: Error name not found");
+    } else {
+      System.out.println("VarExp: " + exp.name);
+    }
     if (exp.exprs != null)
       exp.exprs.accept(this, level);
   }
 
   public void visit(TypeExp exp, int level) {
     indent(level);
-    System.out.print("TypeExp:");
+    System.out.print("TypeExp: ");
     switch (exp.type) {
       case TypeExp.INT:
-        System.out.println(" INT ");
+        System.out.println("INT");
         break;
       case TypeExp.VOID:
-        System.out.println(" VOID ");
+        System.out.println("VOID");
         break;
       default:
-        System.out.println("Unrecognized type at line " + exp.row + " and column " + exp.col);
+        System.out.println("Error unrecognized type");
     }
   }
 
@@ -125,9 +151,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     exp.type.accept(this, level);
     exp.name.accept(this, level);
+    indent(level);
+    System.out.println("FunParamsExp: ");
+    level++;
     exp.params.accept(this, level);
-    if (exp.compound != null)
+    if (exp.compound != null) {
+      level--;
+      indent(level);
+      System.out.println("CompoundExp: ");
+      level++;
       exp.compound.accept(this, level);
+    }
   }
 
   public void visit(ParListExp exp, int level) {
@@ -148,7 +182,11 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(CompExp exp, int level) {
     indent(level);
-    System.out.println("Expression: ");
+    if (exp.first == null && exp.second == null) {
+      System.out.println("Expression: Error missing values");
+    } else {
+      System.out.println("Expression: ");
+    }
     level++;
     if (exp.first != null)
       exp.first.accept(this, level);
