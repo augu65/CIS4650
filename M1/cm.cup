@@ -129,6 +129,10 @@ param_list           ::= param_list:pl COMMA param:p
                      {: RESULT = new ParListExp(plleft, plright, pl, p); :}
                      | param:p
                      {: RESULT = p; :}
+                     | error COMMA param:p
+                     {: parser.report_error("Invalid parameter list", null);
+                        RESULT = p;
+                      :}
                      ;
 param                ::= type_specifier:t ID:i
                      {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
@@ -191,6 +195,10 @@ selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                      {: RESULT = new IfExp(ileft, iright, e, s, null); :}
                      | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
                      {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
+                     | IF:i LPAREN error RPAREN statement:s1
+                     {: parser.report_error("Invalid condition",null);
+                        RESULT = new IfExp(ileft, iright, null, s1, null);
+                      :}
                      ;
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
                      {: RESULT = new RepeatExp(wleft, wright, e, s); :}
@@ -249,13 +257,17 @@ mulop                ::= TIMES:t
                      {: RESULT = new OpExp(oleft, oright, OpExp.OVER); :}
                      ;
 factor               ::= LPAREN expression:e RPAREN
-                     {: RESULT=e; :}
+                     {: RESULT = e; :}
                      | var:v
                      {: RESULT = v; :}
                      | call:c
                      {: RESULT = c; :}
                      | NUM:n
                      {: RESULT = new IntExp(nleft, nright, n); :}
+                     | LPAREN error RPAREN
+                     {: parser.report_error("Invalid", null);
+                        RESULT = null; 
+                     :}
                      ;
 call                 ::= ID:i LPAREN args:a RPAREN
                      {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null), a); :}

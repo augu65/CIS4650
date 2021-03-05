@@ -1,7 +1,11 @@
 int j[10];
-void a;
+void [1];
 void a[8];
-void main(void){
+void main(int k){
     while (x > 1) {
     } 
+}
+
+if(7){
+    int i;
 }
