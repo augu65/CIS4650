@@ -116,9 +116,15 @@ type_specifier       ::= INT:i
                      {: RESULT = new TypeExp(ileft, iright, i, 0); :}
                      | VOID:v
                      {: RESULT = new TypeExp(vleft, vright, v, 1); :}
+                     | error:e
+                     {:parser.report_error("Invalid type",null);
+                       RESULT = new TypeExp(eleft, eright, null, 2);:}
                      ;
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
                      {: RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null), p, c); :}
+                     | type_specifier:t ID:i LPAREN error RPAREN compound_stmt:c
+                     {:parser.report_error("Invalid parameter list", null); 
+                     RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null), null, c); :}
                      ;
 params               ::= param_list:l
                      {: RESULT = l; :}
@@ -129,6 +135,10 @@ param_list           ::= param_list:pl COMMA param:p
                      {: RESULT = new ParListExp(plleft, plright, pl, p); :}
                      | param:p
                      {: RESULT = p; :}
+                     | error COMMA param:p
+                     {: parser.report_error("Invalid parameter list", null);
+                        RESULT = p;
+                     :}
                      ;
 param                ::= type_specifier:t ID:i
                      {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
@@ -191,9 +201,16 @@ selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                      {: RESULT = new IfExp(ileft, iright, e, s, null); :}
                      | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
                      {: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
+                     | IF:i LPAREN error RPAREN statement:s1
+                     {: parser.report_error("Invalid if condition",null);
+                        RESULT = new IfExp(ileft, iright, null, s1, null);
+                      :}
                      ;
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
                      {: RESULT = new RepeatExp(wleft, wright, e, s); :}
+                     |WHILE:w LPAREN error RPAREN statement:s
+                     {: parser.report_error("Invalid while condition",null);
+                     RESULT = new RepeatExp(wleft, wright, null, s); :}
                      ;
 return_stmt          ::= RETURN:r expression:e SEMI 
                      {: RESULT = new ReturnExp(rleft, rright, e); :}
@@ -209,6 +226,9 @@ var                  ::= ID:i
                      {: RESULT = new VarExp(ileft, iright, i, null); :}
                      | ID:i LBLOCKPAREN expression:e RBLOCKPAREN
                      {: RESULT = new VarExp(ileft, iright, i, e); :}
+                     |ID:i LBLOCKPAREN error RBLOCKPAREN
+                     {:parser.report_error("Invalid var declaration",null); 
+                     RESULT = new VarExp(ileft, iright, i, null); :}
                      ;
 simple_expression    ::= additive_expression:a1 relop:r additive_expression:a2
                      {: RESULT = new MathExp(a1left, a2right, a1, r, a2, 0); :}
@@ -237,6 +257,11 @@ addop                ::= PLUS:p
                      {: RESULT = new OpExp(pleft, pright, OpExp.PLUS); :}
                      | MINUS:m
                      {: RESULT = new OpExp(mleft, mright, OpExp.MINUS); :}
+                     | ERROR:e
+                     {:
+                     String emessage = "Invalid symbol found line:" + (eleft+1) + " column:"+eright;
+                     parser.report_error(emessage,null);
+                     RESULT = new OpExp(eleft, eright, OpExp.ERROR); :}
                      ;
 term                 ::= term:t mulop:m factor:f
                      {: RESULT = new MathExp(tleft, tright, t, m, f, 2); :}
@@ -256,6 +281,11 @@ factor               ::= LPAREN expression:e RPAREN
                      {: RESULT = c; :}
                      | NUM:n
                      {: RESULT = new IntExp(nleft, nright, n); :}
+                     |LPAREN error:e RPAREN
+                     {:
+                        parser.report_error("Invalid factor",null);
+                        RESULT=new CompExp(0, 0, null, null); ;
+                     :}
                      ;
 call                 ::= ID:i LPAREN args:a RPAREN
                      {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null), a); :}
@@ -277,4 +307,8 @@ arg_list             ::= arg_list:a COMMA expression:e
                         } :}
                      | expression:e
                      {: RESULT = new ExpList(e, null); :}
+                     |error COMMA expression:e
+                     {: parser.report_error("Invalid arguments list",null);
+                     RESULT = new ExpList(e, null);
+                     :}
                      ;
