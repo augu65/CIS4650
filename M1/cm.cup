@@ -273,7 +273,6 @@ mulop                ::= TIMES:t
                      | OVER:o
                      {: RESULT = new OpExp(oleft, oright, OpExp.OVER); :}
                      ;
-// not sure how to do this error
 factor               ::= LPAREN expression:e RPAREN
                      {: RESULT=e; :}
                      | var:v
