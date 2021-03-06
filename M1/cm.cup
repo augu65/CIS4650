@@ -92,6 +92,9 @@ start with program;
 
 program	            ::= declaration_list:l
                      {: RESULT = l; :}
+                     | error
+                     {:parser.report_error("invalid file format", null); :}
+                     |
                      ;
 declaration_list     ::= declaration_list:l declaration:d
                      {: ExpList t = l;

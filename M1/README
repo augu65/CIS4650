@@ -1,23 +1,29 @@
-A JFlex+Cup implementation for the Tiny language.
+A JFlex+Cup implementation for the cm language.
+***Source code given by Fei song was used in implementation.***
 
-  Note that you need to modify the paths for CLASSPATH, JFLEX, and CUP in 
-the Makefile so that the related commands can be found on your particular 
-machine.  For example, the given settings are for the Linux server and the 
-commented settings are for my macbook.
-
-  To build the parser, type "make" in the current directory, which will 
-generate an executable program called "Main".
-
-  To test source code like "fac.tiny", type 
-
-    "java -classpath /usr/share/java/cup.jar:. Main fac.tiny" 
-
-and the syntax tree will be displayed on the screen.
+Build Instruction:
+  To build the parse type make in the current directory. To run the code type
+  "java -classpath /usr/share/java/cup.jar:. Main fac.cm" . The fac.cm file will be the
+  input test file that the complier will evaluate. 
+ 
+  To just test the scanner type:
+  "java -classpath /usr/share/java/cup.jar:. Scanner < fac.cm".
 
   To rebuild the parser, type "make clean" and type "make" again.
 
-  Also note that all the abstract syntax tree structures are defined under
-the directory "absyn" and the methods for showing a syntax tree is implemented
-by the visitor pattern in "ShowTreeVisitor.java".  Since some java files are 
-generated automatically, they may contain variables that are not used, which 
-are safe to ignore in the compilation process.
+Test Instructions:
+  To test this code you can run the three files gcd.cm, sort.cm, and fac.cm through the code to enure that the scanner, parser 
+  and syntax tree are working properly.
+
+  In addition, test.cm was used to check for errors that could exist in the code. Some errors checked were missing parameters, 
+  missing/incorrect types, invalid parameters like ",param". Also errors were tested for if and while statements which did not 
+  have a test condition. The final error conditions that were tested was if a symbol is invalid in a simple statement 
+  (i.e. t = 1 % 1 or sort = 2/3&1).
+  Blank cm files were tested with the result being nothing outputed to the screen as there is no abstract syntax tree for a blank file.
+  Files with only sentences were also tested with the result being a error being outprinted to the screen.
+  
+  The scanner was also tested through the 4 files above seperatly to ensure that all the tokens generated were accurate and exaustive.
+
+Limitations:
+  Not all errors are caught in the complier. Some such errors that are not caught are missing ";" and missing brackets.
+
