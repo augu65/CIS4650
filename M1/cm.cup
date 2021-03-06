@@ -274,7 +274,7 @@ mulop                ::= TIMES:t
                      {: RESULT = new OpExp(oleft, oright, OpExp.OVER); :}
                      ;
 factor               ::= LPAREN expression:e RPAREN
-                     {: RESULT=e; :}
+                     {: RESULT = e; :}
                      | var:v
                      {: RESULT = v; :}
                      | call:c

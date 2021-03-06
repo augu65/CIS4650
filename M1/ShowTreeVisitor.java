@@ -8,7 +8,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
     for (int i = 0; i < level * SPACES; i++)
       System.out.print(" ");
   }
-  
 
   public void visit(ExpList expList, int level) {
     while (expList != null) {
@@ -32,8 +31,8 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println("IfExp:");
     level++;
     if (exp.test != null) {
-    exp.test.accept(this, level);
-    }else{
+      exp.test.accept(this, level);
+    } else {
       indent(level);
       System.out.println("Error test case not found");
     }
@@ -45,11 +44,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
       level++;
       exp.elsepart.accept(this, level);
     }
+
   }
 
   public void visit(IntExp exp, int level) {
     indent(level);
-    if(exp.value == null)
+    if (exp.value == null)
       System.out.println("IntExp: Error value not found");
     else
       System.out.println("IntExp: " + exp.value);
@@ -72,7 +72,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
         System.out.println(" / ");
         break;
       case OpExp.EQ:
-        System.out.println(" = ");
+        System.out.println(" == ");
         break;
       case OpExp.LT:
         System.out.println(" < ");
@@ -99,24 +99,24 @@ public class ShowTreeVisitor implements AbsynVisitor {
   }
 
   public void visit(RepeatExp exp, int level) {
+    indent(level);
+    System.out.println("RepeatExp:");
+    level++;
+    if (exp.test != null) {
+      exp.test.accept(this, level);
+    } else {
       indent(level);
-      System.out.println("RepeatExp:");
-      level++;
-      if (exp.test != null) {
-        exp.test.accept(this, level);
-      }else{
-        indent(level);
-        System.out.println("Error test case not found");
-      }
-      if (exp.exps != null)
-        exp.exps.accept(this, level);
+      System.out.println("Error test case not found");
+    }
+    if (exp.exps != null)
+      exp.exps.accept(this, level);
   }
 
   public void visit(VarExp exp, int level) {
     indent(level);
-    if(exp.name == null){
+    if (exp.name == null) {
       System.out.println("VarExp: Error name not found");
-    }else{
+    } else {
       System.out.println("VarExp: " + exp.name);
     }
     if (exp.exprs != null)
@@ -145,11 +145,11 @@ public class ShowTreeVisitor implements AbsynVisitor {
     exp.type.accept(this, level);
     exp.name.accept(this, level);
     indent(level);
-    System.out.println("FunParamsExp: ");
+    System.out.println("ParamsExp: ");
     level++;
     exp.params.accept(this, level);
-    if (exp.compound != null){
-      level --;
+    if (exp.compound != null) {
+      level--;
       indent(level);
       System.out.println("CompoundExp: ");
       level++;
@@ -177,7 +177,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     if (exp.first == null && exp.second == null) {
       System.out.println("Expression: Error missing values");
-    }else{
+    } else {
       System.out.println("Expression: ");
     }
     level++;

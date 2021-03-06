@@ -1,5 +1,5 @@
 int j[10];
-void a;
+void [1];
 void a[8];
 
  int main( void test){
