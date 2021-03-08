@@ -26,4 +26,4 @@ Test Instructions:
 
 Limitations:
   Not all errors are caught in the complier. Some such errors that are not caught are missing ";" and missing brackets.
-
+  All local declarations in a function must be made before statements. This is due to a limitation with the grammar.
