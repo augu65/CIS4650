@@ -87,7 +87,7 @@ number = {digit}+
 id = [_a-zA-Z][_a-zA-Z0-9]*
 
 /* Regex to find all comments*/
-comment = "/*"[^*/]*"*/"
+comment = "/*"(.*?|\n)*"*/"
 %%
 /* ------------------------Lexical Rules Section---------------------- */
    
