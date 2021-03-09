@@ -1,0 +1,20 @@
+/* Invalid type on line 14
+   Error will print stating "Error : Invalid Type"
+   Tree will display TypeExp as "Error unrecognized type"
+
+   Invalid factor on line 17
+   Error will print stating "Error : parameter list"
+   Tree will display nothing for ParamsExp under the function call
+
+   Invalid factor on line 19
+   Error will print stating "Error : Invalid factor"
+   Tree will display Expression as "Error missing values"
+ */
+
+string hello;
+void a[8];
+
+int main( ,void test){
+    j = j + 0;
+    t=t*();
+}

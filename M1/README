@@ -3,9 +3,12 @@ A JFlex+Cup implementation for the cm language.
 
 Build Instruction:
   To build the parse type make in the current directory. To run the code type
-  "java -classpath /usr/share/java/cup.jar:. Main fac.cm" . The fac.cm file will be the
+  "java -classpath /usr/share/java/cup.jar:. CM fac.cm" . The fac.cm file will be the
   input test file that the complier will evaluate. 
  
+  To display the syntax tree type:
+  "java -classpath /usr/share/java/cup.jar:. CM fac.cm -a"
+
   To just test the scanner type:
   "java -classpath /usr/share/java/cup.jar:. Scanner < fac.cm".
 
@@ -22,7 +25,7 @@ Test Instructions:
   Blank cm files were tested with the result being nothing outputed to the screen as there is no abstract syntax tree for a blank file.
   Files with only sentences were also tested with the result being a error being outprinted to the screen.
   
-  The scanner was also tested through the 4 files above seperatly to ensure that all the tokens generated were accurate and exaustive.
+  The scanner was also tested through the 5 files above seperatly to ensure that all the tokens generated were accurate and exaustive.
 
 Limitations:
   Not all errors are caught in the complier. Some such errors that are not caught are missing ";" and missing brackets.
