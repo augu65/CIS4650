@@ -1,26 +1,39 @@
 /*
   Created by: Fei Song
-  File Name: Main.java
+  File Name: CM.java
   To Build: 
   After the scanner, cm.flex, and the parser, cm.cup, have been created.
-    javac Main.java
+    javac CM.java
   
   To Run: 
-    java -classpath /usr/share/java/cup.jar:. Main gcd.cm
+    java -classpath /usr/share/java/cup.jar:. CM gcd.cm
 
   where gcd.cm is an test input file for the cm language.
 */
-   
+import java.util.Arrays;
 import java.io.*;
 import absyn.*;
    
-class Main {
-  public final static boolean SHOW_TREE = true;
+class CM {
+  public static boolean SHOW_TREE = false;
   static public void main(String argv[]) {    
     /* Start the parser */
     try {
+      for (int i = 0; i < argv.length; i++) {
+        if (argv[i].equals("-a")) {
+          SHOW_TREE = true;
+          if(i+1 < argv.length){
+            argv[i] = argv[i+1];
+            break;
+          }else{
+            System.out.println(i);
+            argv[i] = argv[i-1];
+            break;
+          }
+        }
+      }
       parser p = new parser(new Lexer(new FileReader(argv[0])));
-      Absyn result = (Absyn)(p.parse().value);      
+      Absyn result = (Absyn)(p.parse().value);  
       if (SHOW_TREE && result != null) {
          System.out.println("The abstract syntax tree is:");
          ShowTreeVisitor visitor = new ShowTreeVisitor();

@@ -144,10 +144,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     exp.type.accept(this, level);
     exp.name.accept(this, level);
-    indent(level);
-    System.out.println("ParamsExp: ");
+    if(exp.params != null){
+      indent(level);
+      System.out.println("ParamsExp: ");
+      exp.params.accept(this, level);
+    }
     level++;
-    exp.params.accept(this, level);
     if (exp.compound != null) {
       level--;
       indent(level);
