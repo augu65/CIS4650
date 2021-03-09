@@ -114,6 +114,10 @@ var_declaration      ::= type_specifier:t ID:i SEMI
                      {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), null, t); :}
                      | type_specifier:t ID:i LBLOCKPAREN NUM:n RBLOCKPAREN SEMI
                      {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), new IntExp(nleft, nright, n), t); :}
+                     | type_specifier:t ID:i LBLOCKPAREN error RBLOCKPAREN SEMI
+                     {: parser.report_error("invalid value for array size", null); 
+                        RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), new IntExp(0, 0, null), t); 
+                     :}
                      ;
 type_specifier       ::= INT:i
                      {: RESULT = new TypeExp(ileft, iright, i, 0); :}
