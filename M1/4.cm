@@ -1,0 +1,19 @@
+/* Invalid parameter on line 14
+   Error will print stating "Error : Invalid type"
+   Tree will not display TypeExp as "Error unrecognized type"
+
+   Invalid parameter on line 16
+   Error will print stating "Error : Invalid parameter list"
+   Tree will not display the parameter list for the function
+
+   Invalid parameter on line 18
+   Error will print stating "Error : Invalid symbol found line:8 column:10"
+   Tree will not display OpExp as "Unrecognized symbol found"
+ */
+
+z[1];
+
+int main(){
+    j = j + 0;
+    k = 1 & 2;
+}
