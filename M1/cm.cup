@@ -77,10 +77,10 @@ terminal String ID, NUM;
 terminal ERROR;
 
    
-non terminal ExpList program, declaration_list, local_declarations, statement_list, compound_stmt, statement, arg_list, args;
-non terminal Exp params, param_list, param, declaration, var_declaration, fun_declaration, type_specifier;
+non terminal ExpList program, declaration_list, local_code, compound_stmt, statement, arg_list;
+non terminal Exp params, param, var_declaration, fun_declaration, type_specifier;
 non terminal Exp expression_stmt, selection_stmt, iteration_stmt, return_stmt, expression;
-non terminal Exp var, simple_expression, additive_expression, relop, addop, term, mulop, factor, call;
+non terminal Exp var, simple_expression, additive_expression, relop, addop, term, mulop, factor;
 
 precedence nonassoc NEQ, LE, LT, GE, GT, EQ;
 precedence left PLUS, MINUS;
@@ -96,20 +96,24 @@ program	            ::= declaration_list:l
                      {:parser.report_error("invalid file format", null); :}
                      |
                      ;
-declaration_list     ::= declaration_list:l declaration:d
+declaration_list     ::= declaration_list:l var_declaration:v
                      {: ExpList t = l;
                         while( t.tail != null )
                            t = t.tail;
-                        t.tail = new ExpList(d, null);
+                        t.tail = new ExpList(v, null);
                         RESULT = l; :}
-                     | declaration:d
-                     {: RESULT = new ExpList(d, null); :}
-                     ;
-declaration          ::= var_declaration:v
-                     {: RESULT = v; :}
+                     |declaration_list:l fun_declaration:f
+                     {: ExpList t = l;
+                        while( t.tail != null )
+                           t = t.tail;
+                        t.tail = new ExpList(f, null);
+                        RESULT = l; :}
+                     | var_declaration:v
+                     {: RESULT = new ExpList(v, null); :}
                      | fun_declaration:f
-                     {: RESULT = f; :}
+                     {: RESULT = new ExpList(f, null); :}
                      ;
+
 var_declaration      ::= type_specifier:t ID:i SEMI
                      {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), null, t); :}
                      | type_specifier:t ID:i LBLOCKPAREN NUM:n RBLOCKPAREN SEMI
@@ -133,12 +137,7 @@ fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_s
                      {:parser.report_error("Invalid parameter list", null); 
                      RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null), null, c); :}
                      ;
-params               ::= param_list:l
-                     {: RESULT = l; :}
-                     | VOID:v
-                     {: RESULT = new TypeExp(vleft, vright, v, 1);  :}
-                     ;
-param_list           ::= param_list:pl COMMA param:p
+params               ::= params:pl COMMA param:p
                      {: RESULT = new ParListExp(plleft, plright, pl, p); :}
                      | param:p
                      {: RESULT = p; :}
@@ -146,25 +145,20 @@ param_list           ::= param_list:pl COMMA param:p
                      {: parser.report_error("Invalid parameter list", null);
                         RESULT = p;
                      :}
+                     | VOID:v
+                     {: RESULT = new TypeExp(vleft, vright, v, 1);  :}
                      ;
 param                ::= type_specifier:t ID:i
                      {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
                      | type_specifier:t ID:i LBLOCKPAREN RBLOCKPAREN
                      {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
                      ;
-compound_stmt        ::= LCURLY local_declarations:l statement_list:s RCURLY
-                     {: ExpList t = l;
-                        if(t != null){
-                           while( t.tail != null ){
-                              t = t.tail;
-                           }
-                           t.tail = s;
-                           RESULT = l;
-                        } else {
-                           RESULT = s;
-                        } :}
+compound_stmt        ::= LCURLY local_code:l RCURLY
+                     {: 
+                        RESULT =  l;
+                     :}
                      ;
-local_declarations   ::= local_declarations:d var_declaration:v
+local_code           ::= local_code:d var_declaration:v
                      {: ExpList t = d;
                         if(t != null){
                            while( t.tail != null )
@@ -173,10 +167,9 @@ local_declarations   ::= local_declarations:d var_declaration:v
                            RESULT = d;
                         }else{
                            RESULT = new ExpList(v, null);
-                        } :}
-                     | 
-                     ;
-statement_list       ::= statement_list:l statement:s
+                        }
+                     :}
+                     | local_code:l statement:s
                      {: ExpList t = l;
                         if(t != null){
                            while( t.tail != null )
@@ -185,8 +178,9 @@ statement_list       ::= statement_list:l statement:s
                            RESULT = l;
                         } else{
                            RESULT = s;
-                        } :}
-                     |
+                        }
+                     :}
+                     | 
                      ;
 statement            ::= expression_stmt:e
                      {: RESULT = new ExpList(e, null); :}
@@ -215,7 +209,7 @@ selection_stmt       ::= IF:i LPAREN expression:e RPAREN statement:s
                      ;
 iteration_stmt       ::= WHILE:w LPAREN expression:e RPAREN statement:s
                      {: RESULT = new RepeatExp(wleft, wright, e, s); :}
-                     |WHILE:w LPAREN error RPAREN statement:s
+                     | WHILE:w LPAREN error RPAREN statement:s
                      {: parser.report_error("Invalid while condition",null);
                      RESULT = new RepeatExp(wleft, wright, null, s); :}
                      ;
@@ -284,8 +278,8 @@ factor               ::= LPAREN expression:e RPAREN
                      {: RESULT = e; :}
                      | var:v
                      {: RESULT = v; :}
-                     | call:c
-                     {: RESULT = c; :}
+                     | ID:i LPAREN arg_list:a RPAREN
+                     {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null), a); :}
                      | NUM:n
                      {: RESULT = new IntExp(nleft, nright, n); :}
                      |LPAREN error:e RPAREN
@@ -293,14 +287,6 @@ factor               ::= LPAREN expression:e RPAREN
                         parser.report_error("Invalid factor",null);
                         RESULT=new CompExp(0, 0, null, null); ;
                      :}
-                     ;
-call                 ::= ID:i LPAREN args:a RPAREN
-                     {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null), a); :}
-                     ;
-args                 ::= arg_list:a
-                     {: RESULT = a; :}
-                     |
-                     {: RESULT = null; :}
                      ;
 arg_list             ::= arg_list:a COMMA expression:e
                      {: ExpList t = a;
@@ -318,4 +304,6 @@ arg_list             ::= arg_list:a COMMA expression:e
                      {: parser.report_error("Invalid arguments list",null);
                      RESULT = new ExpList(e, null);
                      :}
+                     |
+                     {: RESULT = null; :}
                      ;
