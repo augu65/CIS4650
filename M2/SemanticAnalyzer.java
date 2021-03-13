@@ -1,5 +1,4 @@
 import absyn.*;
-import jdk.nashorn.internal.runtime.regexp.joni.constants.NodeType;
 
 import java.util.HashMap;
 import java.util.ArrayList;

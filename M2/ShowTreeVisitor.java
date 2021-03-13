@@ -59,41 +59,41 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.print("OpExp:");
     switch (exp.op) {
-      case OpExp.PLUS:
-        System.out.println(" + ");
-        break;
-      case OpExp.MINUS:
-        System.out.println(" - ");
-        break;
-      case OpExp.TIMES:
-        System.out.println(" * ");
-        break;
-      case OpExp.OVER:
-        System.out.println(" / ");
-        break;
-      case OpExp.EQ:
-        System.out.println(" == ");
-        break;
-      case OpExp.LT:
-        System.out.println(" < ");
-        break;
-      case OpExp.GT:
-        System.out.println(" > ");
-        break;
-      case OpExp.LE:
-        System.out.println(" <= ");
-        break;
-      case OpExp.GE:
-        System.out.println(" >= ");
-        break;
-      case OpExp.NEQ:
-        System.out.println(" != ");
-        break;
-      case OpExp.ERROR:
-        System.out.println(" Unrecognized symbol found ");
-        break;
-      default:
-        System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
+    case OpExp.PLUS:
+      System.out.println(" + ");
+      break;
+    case OpExp.MINUS:
+      System.out.println(" - ");
+      break;
+    case OpExp.TIMES:
+      System.out.println(" * ");
+      break;
+    case OpExp.OVER:
+      System.out.println(" / ");
+      break;
+    case OpExp.EQ:
+      System.out.println(" == ");
+      break;
+    case OpExp.LT:
+      System.out.println(" < ");
+      break;
+    case OpExp.GT:
+      System.out.println(" > ");
+      break;
+    case OpExp.LE:
+      System.out.println(" <= ");
+      break;
+    case OpExp.GE:
+      System.out.println(" >= ");
+      break;
+    case OpExp.NEQ:
+      System.out.println(" != ");
+      break;
+    case OpExp.ERROR:
+      System.out.println(" Unrecognized symbol found ");
+      break;
+    default:
+      System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
     }
     level++;
   }
@@ -127,14 +127,14 @@ public class ShowTreeVisitor implements AbsynVisitor {
     indent(level);
     System.out.print("TypeExp: ");
     switch (exp.type) {
-      case TypeExp.INT:
-        System.out.println("INT");
-        break;
-      case TypeExp.VOID:
-        System.out.println("VOID");
-        break;
-      default:
-        System.out.println("Error unrecognized type");
+    case TypeExp.INT:
+      System.out.println("INT");
+      break;
+    case TypeExp.VOID:
+      System.out.println("VOID");
+      break;
+    default:
+      System.out.println("Error unrecognized type");
     }
   }
 
@@ -144,9 +144,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     exp.type.accept(this, level);
     exp.name.accept(this, level);
-    if(exp.params != null){
+    if (exp.params != null) {
       indent(level);
       System.out.println("ParamsExp: ");
+      level++;
       exp.params.accept(this, level);
     }
     level++;
@@ -199,17 +200,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit(MathExp exp, int level) {
     indent(level);
     switch (exp.type) {
-      case MathExp.SIMPLE:
-        System.out.println("SimpleExp: ");
-        break;
-      case MathExp.ADDITIVE:
-        System.out.println("AdditiveExp: ");
-        break;
-      case MathExp.TERM:
-        System.out.println("TermExp: ");
-        break;
-      default:
-        System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
+    case MathExp.SIMPLE:
+      System.out.println("SimpleExp: ");
+      break;
+    case MathExp.ADDITIVE:
+      System.out.println("AdditiveExp: ");
+      break;
+    case MathExp.TERM:
+      System.out.println("TermExp: ");
+      break;
+    default:
+      System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
     }
     level++;
     exp.lhs.accept(this, level);
