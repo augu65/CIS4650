@@ -30,15 +30,24 @@ class CM {
           argv[0] = argv[i];
         }
       }
-
+      if(!SHOW_TREE  && !SHOW_SEMATIC){
+        System.out.println("Please add the -a flag for the abstract syntax tree.");
+        System.out.println("Please add the -s flag for the symantic analyzer tree.");
+        return;
+      }
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Absyn result = (Absyn) (p.parse().value);
       if (SHOW_TREE && result != null) {
+        PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "")+".abs"));
+        System.setOut(out);
         System.out.println("The abstract syntax tree is:");
         ShowTreeVisitor visitor = new ShowTreeVisitor();
         result.accept(visitor, 0);
       }
       if (SHOW_SEMATIC && result !=null){
+        System.out.flush();
+        PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".sym"));
+        System.setOut(out);
         System.out.println("The Semantic analyzer tree is:");
         SemanticAnalyzer visitor = new SemanticAnalyzer();
         result.accept(visitor, 0);
