@@ -5,7 +5,9 @@ import java.util.Set;
 public class SemanticAnalyzer implements AbsynVisitor {
 
     HashMap<String, ArrayList<NodeType>> table;
-
+    int globalLevel = 0;
+    String type = null;
+    String name = null;
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
     }
@@ -65,33 +67,24 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
-        indent(level);
-        System.out.println("AssignExp:");
-        level++;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
         if (exp.num != null)
             exp.num.accept(this, level);
+        NodeType node = new NodeType(name, type, globalLevel);
+        insert(node);
+
     }
 
     public void visit(IfExp exp, int level) {
-        indent(level);
-        System.out.println("IfExp:");
-        level++;
-        if (exp.test != null) {
-            exp.test.accept(this, level);
-        } else {
-            indent(level);
-            System.out.println("Error test case not found");
-        }
+        exp.test.accept(this, level);
+        globalLevel++;
         exp.thenpart.accept(this, level);
+        deleteLevel(globalLevel);
         if (exp.elsepart != null) {
-            level--;
-            indent(level);
-            System.out.println("ElseExp:");
-            level++;
             exp.elsepart.accept(this, level);
         }
+        deleteLevel(globalLevel);
 
     }
 
@@ -147,39 +140,28 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(RepeatExp exp, int level) {
-        indent(level);
-        System.out.println("RepeatExp:");
-        level++;
         if (exp.test != null) {
             exp.test.accept(this, level);
-        } else {
-            indent(level);
-            System.out.println("Error test case not found");
         }
+        globalLevel++;
         if (exp.exps != null)
             exp.exps.accept(this, level);
+        deleteLevel(globalLevel);
     }
 
     public void visit(VarExp exp, int level) {
-        indent(level);
-        if (exp.name == null) {
-            System.out.println("VarExp: Error name not found");
-        } else {
-            System.out.println("VarExp: " + exp.name);
-        }
+        name = exp.name;
         if (exp.exprs != null)
             exp.exprs.accept(this, level);
     }
 
     public void visit(TypeExp exp, int level) {
-        indent(level);
-        System.out.print("TypeExp: ");
         switch (exp.type) {
         case TypeExp.INT:
-            System.out.println("INT");
+            type = "INT";
             break;
         case TypeExp.VOID:
-            System.out.println("VOID");
+            type = "VOID";
             break;
         default:
             System.out.println("Error unrecognized type");
@@ -187,51 +169,29 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(FunExp exp, int level) {
-        indent(level);
-        System.out.println("FunExp: ");
-        level++;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
         if (exp.params != null) {
-            indent(level);
-            System.out.println("ParamsExp: ");
-            level++;
             exp.params.accept(this, level);
         }
-        level++;
+        globalLevel++;
         if (exp.compound != null) {
-            level--;
-            indent(level);
-            System.out.println("CompoundExp: ");
-            level++;
             exp.compound.accept(this, level);
         }
+        deleteLevel(globalLevel);
     }
 
     public void visit(ParListExp exp, int level) {
-        indent(level);
-        System.out.println("ParListExp: ");
-        level++;
         exp.paramlist.accept(this, level);
         exp.param.accept(this, level);
     }
 
     public void visit(ParamExp exp, int level) {
-        indent(level);
-        System.out.println("ParamExp: ");
-        level++;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
     }
 
     public void visit(CompExp exp, int level) {
-        indent(level);
-        if (exp.first == null && exp.second == null) {
-            System.out.println("Expression: Error missing values");
-        } else {
-            System.out.println("Expression: ");
-        }
-        level++;
         if (exp.first != null)
             exp.first.accept(this, level);
         if (exp.second != null)
@@ -239,37 +199,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ReturnExp exp, int level) {
-        indent(level);
-        System.out.println("ReturnExp: ");
-        level++;
         exp.exps.accept(this, level);
     }
 
     public void visit(MathExp exp, int level) {
-        indent(level);
-        switch (exp.type) {
-        case MathExp.SIMPLE:
-            System.out.println("SimpleExp: ");
-            break;
-        case MathExp.ADDITIVE:
-            System.out.println("AdditiveExp: ");
-            break;
-        case MathExp.TERM:
-            System.out.println("TermExp: ");
-            break;
-        default:
-            System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
-        }
-        level++;
         exp.lhs.accept(this, level);
         exp.op.accept(this, level);
         exp.rhs.accept(this, level);
     }
 
     public void visit(CallExp exp, int level) {
-        indent(level);
-        System.out.println("CallExp: ");
-        level++;
         exp.name.accept(this, level);
         if (exp.args != null)
             exp.args.accept(this, level);
