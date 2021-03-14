@@ -85,6 +85,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.elsepart.accept(this, level);
         }
         deleteLevel(globalLevel);
+        globalLevel--;
 
     }
 
@@ -147,6 +148,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.exps != null)
             exp.exps.accept(this, level);
         deleteLevel(globalLevel);
+        globalLevel--;
     }
 
     public void visit(VarExp exp, int level) {
@@ -179,6 +181,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.compound.accept(this, level);
         }
         deleteLevel(globalLevel);
+        globalLevel--;
     }
 
     public void visit(ParListExp exp, int level) {
