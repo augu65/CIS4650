@@ -1,3 +1,8 @@
+/*
+  Created by: Kaylee Bigelow and Jonah Stegman
+  File Name: SemanticAnalyzer.java
+*/
+
 import absyn.*;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -94,7 +99,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IfExp exp, int level) {
-        exp.test.accept(this, level);
+        if(exp.test != null)
+            exp.test.accept(this, level);
         globalLevel++;
         level++;
         indent(level);
@@ -150,10 +156,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
         case OpExp.NEQ:
             break;
         case OpExp.ERROR:
-            System.out.println(" Unrecognized symbol found ");
             break;
         default:
-            System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
+            break;
         }
     }
 
@@ -192,7 +197,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             type = "VOID";
             break;
         default:
-            System.out.println("Error unrecognized type");
+           type = "Unknown";
         }
     }
 

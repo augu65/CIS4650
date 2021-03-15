@@ -1,3 +1,7 @@
+/*
+  Created by: Kaylee Bigelow and Jonah Stegman
+  File Name: NodeType.java
+*/
 public class NodeType {
     public String name;
     public String def;
