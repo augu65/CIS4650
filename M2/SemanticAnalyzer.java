@@ -40,18 +40,32 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     private void deleteLevel(int level) {
         Set<String> keys = table.keySet();
+        ArrayList<String> deleteKeys = new ArrayList<String>();
         for (String key : keys) {
             ArrayList<NodeType> list = table.get(key);
             NodeType last = list.get(list.size() - 1);
             if (last.level == level) {
-                if(list.size()-1 >0){
-                    list.remove(list.size() - 1);
-                }
+                list.remove(last);
                 if (list.isEmpty()) {
-                    table.remove(key);
+                    deleteKeys.add(key);
                 }
-            }   
+            }  
         }
+        keys.removeAll(deleteKeys);
+    }
+
+    public void printLevel(int level){
+        level++;
+        Set<String> keys = table.keySet();
+        for (String key : keys) {
+            ArrayList<NodeType> list = table.get(key);
+            NodeType last = list.get(list.size() - 1);
+            if (last.level == globalLevel) {
+                indent(level);
+                System.out.println(last.name + ": " + last.def);
+            }
+        }
+        level--;
     }
 
     final static int SPACES = 4;
@@ -69,17 +83,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
+        name = null;
+        type = null;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        level ++;
-        indent(level);
-        System.out.println(name+": "+type);
-        level --;
         if (exp.num != null)
             exp.num.accept(this, level);
         NodeType node = new NodeType(name, type, globalLevel);
         insert(node);
-
     }
 
     public void visit(IfExp exp, int level) {
@@ -88,7 +99,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
         level++;
         indent(level);
         System.out.println("Entering a new block");
-        exp.thenpart.accept(this, level);
+        if (exp.thenpart !=null)
+            exp.thenpart.accept(this, level);
+        printLevel(level);
         deleteLevel(globalLevel);
         indent(level);
         System.out.println("Leaving a new block");
@@ -96,16 +109,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
             indent(level);
             System.out.println("Entering a new block");
             exp.elsepart.accept(this, level);
+            printLevel(level);
             indent(level);
             System.out.println("Leaving a new block");
+            deleteLevel(globalLevel);
         }
-        deleteLevel(globalLevel);
         level--;
         globalLevel--;
 
     }
 
     public void visit(IntExp exp, int level) {
+        if(exp.value != null){
+            type = type+" ["+exp.value+"]";
+        }else{
+            type = type + " [Unknown]";
+        }
     }
 
     public void visit(OpExp exp, int level) {
@@ -139,20 +158,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(RepeatExp exp, int level) {
+        globalLevel++;
         if (exp.test != null) {
             exp.test.accept(this, level);
         }
         level++;
-        globalLevel++;
-        indent(level);
         if (exp.exps != null){
+            indent(level);
             System.out.println("Entering a new block");
-            exp.exps.accept(this, level);
+            if(exp.exps != null)
+                exp.exps.accept(this, level);
+            printLevel(level);
             indent(level);
             System.out.println("Leaving a new block");
+            deleteLevel(globalLevel);
         }
         level--;
-        deleteLevel(globalLevel);
         globalLevel--;
     }
 
@@ -176,6 +197,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(FunExp exp, int level) {
+        exp.type.accept(this, level);
+        exp.name.accept(this, level);
+        type = "(" + type + ") -> " + type;
+        NodeType node = new NodeType(name, type, globalLevel);
+        insert(node);
         globalLevel++;
         level++;
         indent(level);
@@ -186,18 +212,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.compound != null) {
             exp.compound.accept(this, level);
         }
+        printLevel(level);
         indent(level);
         System.out.println("Leaving the function scope");
         deleteLevel(globalLevel);
         globalLevel--;
-        exp.type.accept(this, level);
-        exp.name.accept(this, level);
-        type = "(" + type + ") -> " + type;
-        NodeType node = new NodeType(name, type, globalLevel);
-        insert(node);
-        indent(level);
-        System.out.println(name + ": " + type);
         level--;
+        printLevel(level);
+        name = null;
+        type = null;
     }
 
     public void visit(ParListExp exp, int level) {
