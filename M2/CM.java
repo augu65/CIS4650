@@ -1,4 +1,3 @@
-
 /*
   File Name: CM.java
   To Build: 
@@ -10,7 +9,6 @@
 
   where 1.cm is an test input file for the cm language.
 */
-import java.util.Arrays;
 import java.io.*;
 import absyn.*;
 

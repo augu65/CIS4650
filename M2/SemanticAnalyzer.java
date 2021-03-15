@@ -123,7 +123,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if(exp.value != null){
             type = type+" ["+exp.value+"]";
         }else{
-            type = type + " [Unknown]";
+            type = type + "[Unknown]";
         }
     }
 
