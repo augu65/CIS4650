@@ -44,11 +44,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
             ArrayList<NodeType> list = table.get(key);
             NodeType last = list.get(list.size() - 1);
             if (last.level == level) {
-                list.remove(list.size() - 1);
+                if(list.size()-1 >0){
+                    list.remove(list.size() - 1);
+                }
                 if (list.isEmpty()) {
                     table.remove(key);
                 }
-            }
+            }   
         }
     }
 
@@ -69,6 +71,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(AssignExp exp, int level) {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
+        level ++;
+        indent(level);
+        System.out.println(name+": "+type);
+        level --;
         if (exp.num != null)
             exp.num.accept(this, level);
         NodeType node = new NodeType(name, type, globalLevel);
@@ -79,57 +85,50 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(IfExp exp, int level) {
         exp.test.accept(this, level);
         globalLevel++;
+        level++;
+        indent(level);
+        System.out.println("Entering a new block");
         exp.thenpart.accept(this, level);
         deleteLevel(globalLevel);
+        indent(level);
+        System.out.println("Leaving a new block");
         if (exp.elsepart != null) {
+            indent(level);
+            System.out.println("Entering a new block");
             exp.elsepart.accept(this, level);
+            indent(level);
+            System.out.println("Leaving a new block");
         }
         deleteLevel(globalLevel);
+        level--;
         globalLevel--;
 
     }
 
     public void visit(IntExp exp, int level) {
-        indent(level);
-        if (exp.value == null)
-            System.out.println("IntExp: Error value not found");
-        else
-            System.out.println("IntExp: " + exp.value);
     }
 
     public void visit(OpExp exp, int level) {
-        indent(level);
-        System.out.print("OpExp:");
         switch (exp.op) {
         case OpExp.PLUS:
-            System.out.println(" + ");
             break;
         case OpExp.MINUS:
-            System.out.println(" - ");
             break;
         case OpExp.TIMES:
-            System.out.println(" * ");
             break;
         case OpExp.OVER:
-            System.out.println(" / ");
             break;
         case OpExp.EQ:
-            System.out.println(" == ");
             break;
         case OpExp.LT:
-            System.out.println(" < ");
             break;
         case OpExp.GT:
-            System.out.println(" > ");
             break;
         case OpExp.LE:
-            System.out.println(" <= ");
             break;
         case OpExp.GE:
-            System.out.println(" >= ");
             break;
         case OpExp.NEQ:
-            System.out.println(" != ");
             break;
         case OpExp.ERROR:
             System.out.println(" Unrecognized symbol found ");
@@ -137,16 +136,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
         default:
             System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
         }
-        level++;
     }
 
     public void visit(RepeatExp exp, int level) {
         if (exp.test != null) {
             exp.test.accept(this, level);
         }
+        level++;
         globalLevel++;
-        if (exp.exps != null)
+        indent(level);
+        if (exp.exps != null){
+            System.out.println("Entering a new block");
             exp.exps.accept(this, level);
+            indent(level);
+            System.out.println("Leaving a new block");
+        }
+        level--;
         deleteLevel(globalLevel);
         globalLevel--;
     }
@@ -171,17 +176,28 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(FunExp exp, int level) {
-        exp.type.accept(this, level);
-        exp.name.accept(this, level);
+        globalLevel++;
+        level++;
+        indent(level);
+        System.out.println("Entering the scope for function " + name + ":");
         if (exp.params != null) {
             exp.params.accept(this, level);
         }
-        globalLevel++;
         if (exp.compound != null) {
             exp.compound.accept(this, level);
         }
+        indent(level);
+        System.out.println("Leaving the function scope");
         deleteLevel(globalLevel);
         globalLevel--;
+        exp.type.accept(this, level);
+        exp.name.accept(this, level);
+        type = "(" + type + ") -> " + type;
+        NodeType node = new NodeType(name, type, globalLevel);
+        insert(node);
+        indent(level);
+        System.out.println(name + ": " + type);
+        level--;
     }
 
     public void visit(ParListExp exp, int level) {

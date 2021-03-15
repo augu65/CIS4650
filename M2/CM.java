@@ -49,8 +49,10 @@ class CM {
         PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".sym"));
         System.setOut(out);
         System.out.println("The Semantic analyzer tree is:");
+        System.out.println("Entering the global scope:");
         SemanticAnalyzer visitor = new SemanticAnalyzer();
         result.accept(visitor, 0);
+        System.out.println("Leaving the global scope");        
       }
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */
