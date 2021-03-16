@@ -12,6 +12,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     HashMap<String, ArrayList<NodeType>> table;
     int globalLevel = 0;
     String type = null;
+    String funcType = null;
     String name = null;
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
@@ -29,16 +30,19 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    private boolean lookup(String name, String def) {
+    private String lookup(String name, String def) {
         if (!table.containsKey(name)) {
-            return false;
+            return "Error: Variable not defined";
         } else {
             ArrayList<NodeType> list = table.get(name);
             NodeType curr = list.get(list.size() - 1);
+            if(def == null){
+                return curr.def;
+            }
             if (curr.def.equals(def)) {
-                return true;
+                return "match";
             } else {
-                return false;
+                return "Error: Type don't match definition";
             }
         }
     }
@@ -92,8 +96,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
         type = null;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        if (exp.num != null)
+        if (exp.num != null){
             exp.num.accept(this, level);
+            if (!type.contains("INT")) {
+                System.err.println("Error: Invalid array type");
+            }
+        }
         NodeType node = new NodeType(name, type, globalLevel);
         insert(node);
     }
@@ -204,6 +212,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(FunExp exp, int level) {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
+        funcType = type;
         type = "(" + type + ") -> " + type;
         NodeType node = new NodeType(name, type, globalLevel);
         insert(node);
@@ -226,6 +235,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         printLevel(level);
         name = null;
         type = null;
+        funcType = null;
     }
 
     public void visit(ParListExp exp, int level) {
@@ -247,12 +257,33 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     public void visit(ReturnExp exp, int level) {
         exp.exps.accept(this, level);
+        String result = lookup(name,null);
+        if(result.contains("Error:")){
+            System.err.println(result);
+        } else if(!funcType.equals(result)){
+            System.err.println("Error: invalid return type");
+        }
+
+
     }
 
     public void visit(MathExp exp, int level) {
         exp.lhs.accept(this, level);
+        String result = lookup(name, null);
+        if(result.contains("Error:")){
+            System.err.println(result);
+        }
         exp.op.accept(this, level);
         exp.rhs.accept(this, level);
+        String result2 = lookup(name, null);
+        if (result2.contains("Error:")) {
+            System.err.println(result2);
+        }
+        if(!result.contains("Error:")&&!result2.contains("Error:")){
+            if (result != result2) {
+                System.err.println("Error: invalid ");
+            }
+        }
     }
 
     public void visit(CallExp exp, int level) {
