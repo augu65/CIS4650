@@ -7,6 +7,7 @@ import absyn.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
+
 public class SemanticAnalyzer implements AbsynVisitor {
 
     HashMap<String, ArrayList<NodeType>> table;
@@ -14,6 +15,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     String type = null;
     String funcType = null;
     String name = null;
+    Boolean error = false;
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
     }
@@ -32,16 +34,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     private String lookup(String name, String def) {
         if (!table.containsKey(name)) {
+            System.err.println("Error: Variable not defined");
             return "Error: Variable not defined";
         } else {
             ArrayList<NodeType> list = table.get(name);
             NodeType curr = list.get(list.size() - 1);
-            if(def == null){
+            if (def == null) {
                 return curr.def;
             }
             if (curr.def.equals(def)) {
                 return "match";
             } else {
+                System.err.println("Error: Type don't match definition");
                 return "Error: Type don't match definition";
             }
         }
@@ -58,12 +62,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 if (list.isEmpty()) {
                     deleteKeys.add(key);
                 }
-            }  
+            }
         }
         keys.removeAll(deleteKeys);
     }
 
-    public void printLevel(int level){
+    public void printLevel(int level) {
         level++;
         Set<String> keys = table.keySet();
         for (String key : keys) {
@@ -92,28 +96,33 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
-        name = null;
-        type = null;
+        name = "";
+        type = "";
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        if (exp.num != null){
-            exp.num.accept(this, level);
-            if (!type.contains("INT")) {
-                System.err.println("Error: Invalid array type");
+        if (exp.num != null) {
+            if(type.equals("VOID")){
+                System.err.println("Error: array type can't be void");
             }
+            exp.num.accept(this, level);
         }
         NodeType node = new NodeType(name, type, globalLevel);
         insert(node);
     }
 
     public void visit(IfExp exp, int level) {
-        if(exp.test != null)
+        if (exp.test != null) {
+            error = false;
             exp.test.accept(this, level);
+            if(type.equals("VOID")|| error == true){
+                System.err.println("Error: invalid if test");
+            }
+        }
         globalLevel++;
         level++;
         indent(level);
         System.out.println("Entering a new block");
-        if (exp.thenpart !=null)
+        if (exp.thenpart != null)
             exp.thenpart.accept(this, level);
         printLevel(level);
         deleteLevel(globalLevel);
@@ -134,10 +143,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
-        if(exp.value != null){
-            type = type+" ["+exp.value+"]";
-        }else{
-            type = type + "[Unknown]";
+        if(!type.equals("VOID")){
+            if (exp.value != null) {
+                type = type + " [" + exp.value + "]";
+            } else {
+                type = type + "[Unknown]";
+            }
         }
     }
 
@@ -173,13 +184,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(RepeatExp exp, int level) {
         globalLevel++;
         if (exp.test != null) {
+            error = false;
             exp.test.accept(this, level);
+            if (type.equals("VOID") || error == true) {
+                System.err.println("Error: invalid while test");
+            }
         }
         level++;
-        if (exp.exps != null){
+        if (exp.exps != null) {
             indent(level);
             System.out.println("Entering a new block");
-            if(exp.exps != null)
+            if (exp.exps != null)
                 exp.exps.accept(this, level);
             printLevel(level);
             indent(level);
@@ -205,7 +220,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             type = "VOID";
             break;
         default:
-           type = "Unknown";
+            type = "Unknown";
         }
     }
 
@@ -232,7 +247,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
         deleteLevel(globalLevel);
         globalLevel--;
         level--;
-        printLevel(level);
         name = null;
         type = null;
         funcType = null;
@@ -244,46 +258,35 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ParamExp exp, int level) {
+        name = null;
+        type = null;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
+        NodeType node = new NodeType(name, type, globalLevel);
+        insert(node);
+
     }
 
     public void visit(CompExp exp, int level) {
+        String type1;
+        String type2;
         if (exp.first != null)
             exp.first.accept(this, level);
+
         if (exp.second != null)
             exp.second.accept(this, level);
     }
 
     public void visit(ReturnExp exp, int level) {
-        exp.exps.accept(this, level);
-        String result = lookup(name,null);
-        if(result.contains("Error:")){
-            System.err.println(result);
-        } else if(!funcType.equals(result)){
-            System.err.println("Error: invalid return type");
-        }
-
+        if (exp.exps != null) 
+            exp.exps.accept(this, level);
 
     }
 
     public void visit(MathExp exp, int level) {
         exp.lhs.accept(this, level);
-        String result = lookup(name, null);
-        if(result.contains("Error:")){
-            System.err.println(result);
-        }
         exp.op.accept(this, level);
         exp.rhs.accept(this, level);
-        String result2 = lookup(name, null);
-        if (result2.contains("Error:")) {
-            System.err.println(result2);
-        }
-        if(!result.contains("Error:")&&!result2.contains("Error:")){
-            if (result != result2) {
-                System.err.println("Error: invalid ");
-            }
-        }
     }
 
     public void visit(CallExp exp, int level) {

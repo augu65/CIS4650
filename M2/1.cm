@@ -1,16 +1,21 @@
 /* This file has no errors */
 
 int hello;
-void a[8];
 
 int main(void test){
-    int z;
-    j = j + 0;
-    while(z = 1) {
-      z * 1;
+    void z;
+    void j;
+    int k;
+    void s;
+    while(k < 3) {
+        int afsf;
     }
-    if(j = 2) {
-      j = j / 1;
+    if(s <2){
+        void aaa;
     }
+    input();
+}
+int test2(void a){
+    int m;
     input();
 }

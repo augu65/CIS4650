@@ -50,6 +50,7 @@ class CM {
         System.out.println("Entering the global scope:");
         SemanticAnalyzer visitor = new SemanticAnalyzer();
         result.accept(visitor, 0);
+        visitor.printLevel(0);
         System.out.println("Leaving the global scope");        
       }
     } catch (Exception e) {
