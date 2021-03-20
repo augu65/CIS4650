@@ -15,7 +15,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
     String type = null;
     String funcType = null;
     String name = null;
-    Boolean error = false;
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
     }
@@ -32,22 +31,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    private String lookup(String name, String def) {
+    private NodeType lookup(String name) {
         if (!table.containsKey(name)) {
-            System.err.println("Error: Variable not defined");
-            return "Error: Variable not defined";
+            return null;
         } else {
             ArrayList<NodeType> list = table.get(name);
             NodeType curr = list.get(list.size() - 1);
-            if (def == null) {
-                return curr.def;
-            }
-            if (curr.def.equals(def)) {
-                return "match";
-            } else {
-                System.err.println("Error: Type don't match definition");
-                return "Error: Type don't match definition";
-            }
+            return curr;
         }
     }
 
@@ -106,17 +96,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
             }
             exp.num.accept(this, level);
         }
-        NodeType node = new NodeType(name, type, globalLevel);
-        insert(node);
+        NodeType test = lookup(name);
+        if(test != null && test.level== globalLevel){
+            System.err.println("Error: redefined variable "+name+" at the same level");
+        }else{
+            NodeType node = new NodeType(name, type, globalLevel);
+            insert(node);
+        }
     }
 
     public void visit(IfExp exp, int level) {
         if (exp.test != null) {
-            error = false;
             exp.test.accept(this, level);
-            if(type.equals("VOID")|| error == true){
-                System.err.println("Error: invalid if test");
-            }
         }
         globalLevel++;
         level++;
@@ -143,7 +134,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
-        if(!type.equals("VOID")){
+        if(type == null){
+
+        }
+        else if(!type.equals("VOID")){
             if (exp.value != null) {
                 type = type + " [" + exp.value + "]";
             } else {
@@ -184,11 +178,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(RepeatExp exp, int level) {
         globalLevel++;
         if (exp.test != null) {
-            error = false;
             exp.test.accept(this, level);
-            if (type.equals("VOID") || error == true) {
-                System.err.println("Error: invalid while test");
-            }
         }
         level++;
         if (exp.exps != null) {
@@ -227,10 +217,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(FunExp exp, int level) {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        funcType = type;
-        type = "(" + type + ") -> " + type;
-        NodeType node = new NodeType(name, type, globalLevel);
-        insert(node);
+        NodeType test = lookup(name);
+        if (test != null && test.level == globalLevel) {
+            System.err.println("Error: Function name already exist at the same level");
+        } else {
+            funcType = type;
+            type = "(" + type + ") -> " + type;
+            NodeType node = new NodeType(name, type, globalLevel);
+            insert(node);
+        }
         globalLevel++;
         level++;
         indent(level);
@@ -258,23 +253,23 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ParamExp exp, int level) {
-        name = null;
-        type = null;
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        NodeType node = new NodeType(name, type, globalLevel);
-        insert(node);
+        NodeType test = lookup(name);
+        if (test != null && test.level == globalLevel) {
+            System.err.println("Error: Variable "+name+" already exist at the same level");
+        } else {
+            NodeType node = new NodeType(name, type, globalLevel);
+            insert(node);
+        }
 
     }
 
     public void visit(CompExp exp, int level) {
-        String type1;
-        String type2;
         if (exp.first != null)
             exp.first.accept(this, level);
-
         if (exp.second != null)
-            exp.second.accept(this, level);
+            exp.second.accept(this, level);   
     }
 
     public void visit(ReturnExp exp, int level) {
