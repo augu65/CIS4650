@@ -1,0 +1,9 @@
+int y;
+int k[3];
+
+void main (int hi, int hfiw, void fw) {
+y = 1;
+y = hi;
+if(main()){}
+return y;
+}

@@ -9,6 +9,7 @@ public class ParListExp extends Exp {
         this.col = col;
         this.paramlist = paramlist;
         this.param = param;
+        this.def = paramlist.def + ", " + param.def;
     }
 
     public void accept(AbsynVisitor visitor, int level) {

@@ -15,6 +15,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     String type = null;
     String funcType = null;
     String name = null;
+
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
     }
@@ -86,21 +87,28 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
-        name = "";
-        type = "";
         exp.type.accept(this, level);
         exp.name.accept(this, level);
         if (exp.num != null) {
-            if(type.equals("VOID")){
+            if (exp.type.def.equals("VOID")) {
                 System.err.println("Error: array type can't be void");
             }
             exp.num.accept(this, level);
         }
-        NodeType test = lookup(name);
-        if(test != null && test.level== globalLevel){
-            System.err.println("Error: redefined variable "+name+" at the same level");
-        }else{
-            NodeType node = new NodeType(name, type, globalLevel);
+        NodeType test = lookup(exp.name.def);
+        if (test != null && test.level == globalLevel) {
+            System.err.println("Error: redefined variable " + exp.name.def + " at the same level");
+        } else {
+            if (exp.type.def.equals("VOID")) {
+                System.err.println("Error: variables cannot be defined as VOID type");
+                exp.type.def = "INT";
+            }
+            NodeType node;
+            if (exp.num != null) {
+                node = new NodeType(exp.name.def, exp.type.def + " " + exp.num.def, globalLevel);
+            } else {
+                node = new NodeType(exp.name.def, exp.type.def, globalLevel);
+            }
             insert(node);
         }
     }
@@ -134,10 +142,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
-        if(type == null){
+        if (type == null) {
 
-        }
-        else if(!type.equals("VOID")){
+        } else if (!type.equals("VOID")) {
             if (exp.value != null) {
                 type = type + " [" + exp.value + "]";
             } else {
@@ -217,21 +224,23 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(FunExp exp, int level) {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
+
         NodeType test = lookup(name);
-        if (test != null && test.level == globalLevel) {
-            System.err.println("Error: Function name already exist at the same level");
-        } else {
-            funcType = type;
-            type = "(" + type + ") -> " + type;
-            NodeType node = new NodeType(name, type, globalLevel);
-            insert(node);
-        }
+
         globalLevel++;
         level++;
         indent(level);
-        System.out.println("Entering the scope for function " + name + ":");
+        System.out.println("Entering the scope for function " + exp.name.def + ":");
         if (exp.params != null) {
             exp.params.accept(this, level);
+        }
+
+        if (test != null && test.level == globalLevel) {
+            System.err.println("Error: Function name already exist at the same level");
+        } else {
+            exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
+            NodeType node = new NodeType(exp.name.def, exp.type.def, globalLevel - 1);
+            insert(node);
         }
         if (exp.compound != null) {
             exp.compound.accept(this, level);
@@ -255,11 +264,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(ParamExp exp, int level) {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        NodeType test = lookup(name);
+        NodeType test = lookup(exp.name.def);
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: Variable "+name+" already exist at the same level");
+            System.err.println("Error: Variable " + exp.name.def + " already exist at the same level");
         } else {
-            NodeType node = new NodeType(name, type, globalLevel);
+            if (exp.type.def.equals("VOID")) {
+                System.err.println("Error: variables cannot be defined as VOID type");
+                exp.type.def = "INT";
+            }
+            NodeType node = new NodeType(exp.name.def, exp.type.def, globalLevel);
             insert(node);
         }
 
@@ -269,11 +282,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.first != null)
             exp.first.accept(this, level);
         if (exp.second != null)
-            exp.second.accept(this, level);   
+            exp.second.accept(this, level);
     }
 
     public void visit(ReturnExp exp, int level) {
-        if (exp.exps != null) 
+        if (exp.exps != null)
             exp.exps.accept(this, level);
 
     }

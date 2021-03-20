@@ -9,6 +9,7 @@ public class VarExp extends Exp {
     this.col = col;
     this.name = name;
     this.exprs = exprs;
+    this.def = name;
   }
 
   public void accept(AbsynVisitor visitor, int level) {

@@ -1,0 +1,9 @@
+The Semantic analyzer tree is:
+Entering the global scope:
+    Entering the scope for function main:
+        test: VOID
+    Leaving the function scope
+    a: VOID
+    main: (INT) -> INT
+    hello: Unknown
+Leaving the global scope

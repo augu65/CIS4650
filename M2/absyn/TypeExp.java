@@ -12,6 +12,11 @@ public class TypeExp extends Exp {
         this.col = col;
         this.name = name;
         this.type = type;
+        if (type == 0) {
+            this.def = "INT";
+        } else {
+            this.def = "VOID";
+        }
     }
 
     public void accept(AbsynVisitor visitor, int level) {
