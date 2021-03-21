@@ -17,6 +17,7 @@ public class MathExp extends Exp {
         this.lhs = lhs;
         this.op = op;
         this.type = type;
+        this.def = lhs.def + " "+ rhs.def;
     }
 
     public void accept(AbsynVisitor visitor, int level) {
