@@ -10,6 +10,7 @@ public class CallExp extends Exp {
         this.name = name;
         this.args = args;
         this.def = null;
+        this.info = name.info;
     }
 
     public void accept(AbsynVisitor visitor, int level) {

@@ -6,15 +6,12 @@ int j;
 void main (int hi) {
     if(j > 1){
         int h;
-        p = 1 + u;
     }
 }
 
 void thing(int j) {
-    j = 1;
-    k[j] = 0 + 1 + l[1] + main(j);
-    k = l;
-    return main();
+    k[j] = 0 + 1 + l[main(j)];
+    return 1;
 }
 
 

@@ -89,16 +89,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.name.accept(this, level);
         if (exp.num != null) {
             if (exp.type.def.equals("VOID")) {
-                System.err.println("Error: array type can't be void");
+                System.err.println("Error: array type can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
             exp.num.accept(this, level);
         }
         NodeType test = lookup(exp.name.info);
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: redefined variable " + exp.name.info + " at the same level");
+            System.err.println("Error: redefined variable " + exp.name.info + " at the same level, at line:"
+                    + (exp.row + 1) + " column:" + exp.col);
         } else {
             if (exp.type.def.equals("VOID")) {
-                System.err.println("Error: variables cannot be defined as VOID type");
+                System.err.println("Error: variables cannot be defined as VOID type, at line:" + (exp.row + 1)
+                        + " column:" + exp.col);
                 exp.type.def = "INT";
             }
             NodeType node;
@@ -118,7 +120,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             for (int i = 0; i < temp.length; i++) {
                 NodeType n = lookup(temp[i]);
                 if (n != null && n.def.contains("VOID")) {
-                    System.err.println("Error: if test can't be void");
+                    System.err.println("Error: if test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
                     break;
                 }
             }
@@ -187,7 +189,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
             for (int i = 0; i < temp.length; i++) {
                 NodeType n = lookup(temp[i]);
                 if (n != null && n.def.contains("VOID")) {
-                    System.err.println("Error: While test can't be void");
+                    System.err.println(
+                            "Error: While test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
                     break;
                 }
             }
@@ -215,7 +218,21 @@ public class SemanticAnalyzer implements AbsynVisitor {
         NodeType test = lookup(exp.name);
         if (test != null) {
             if (exp.exprs != null) {
-                exp.def = test.def + "[" + exp.exprs.info + "]";
+                try {
+                    int temp = Integer.parseInt(exp.exprs.info);
+                    exp.def = test.def + "[" + "INT" + "]";
+                } catch (NumberFormatException e) {
+                    NodeType param = lookup(exp.exprs.info);
+                    if (param != null) {
+                        if (param.def.contains("->")) {
+                            exp.def = test.def + "[" + param.def.split(" ")[2] + "]";
+                        } else {
+                            exp.def = test.def + "[" + param.def + "]";
+                        }
+                    } else {
+                        exp.def = "ERROR - undefined";
+                    }
+                }
             } else {
                 exp.def = test.def;
             }
@@ -241,7 +258,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
 
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: Function name already exists at the same level");
+            System.err.println("Error: Function name already exists at the same level, at line:" + (exp.row + 1)
+                    + " column:" + exp.col);
         } else {
             exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
             NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel - 1);
@@ -253,7 +271,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
         if (funcType != null) {
             if (funcType.split(" ")[2].equals("INT")) {
-                System.err.println("Error: Function declared with type INT but has no return");
+                System.err.println("Error: Function declared with type INT but has no return, at line:" + (exp.row + 1)
+                        + " column:" + exp.col);
             }
         }
         printLevel(level);
@@ -275,10 +294,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.name.accept(this, level);
         NodeType test = lookup(exp.name.info);
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: Variable " + exp.name.info + " already exist at the same level");
+            System.err.println("Error: Variable " + exp.name.info + " already exist at the same level, at line:"
+                    + (exp.row + 1) + " column:" + exp.col);
         } else {
             if (exp.type.def.equals("VOID")) {
-                System.err.println("Error: variables cannot be defined as VOID type");
+                System.err.println("Error: variables cannot be defined as VOID type, at line:" + (exp.row + 1)
+                        + " column:" + exp.col);
                 exp.type.def = "INT";
             }
             NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel);
@@ -307,6 +328,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
                     first = allFirst[0];
                     if (allFirst.length > 2) {
                         array = 0;
+                        if (exp.first.def.contains("ERROR")) {
+                            exp.def = "ERROR";
+                            return;
+                        } else {
+                            if (!first.equals(exp.first.def.split("\\[")[2].split("]")[0])) {
+                                exp.def = "ERROR";
+                                System.err.println("Error: VOID type cannot be used to access array, at line:"
+                                        + (exp.row + 1) + " column:" + exp.col);
+                                return;
+                            }
+                        }
                     }
                 }
                 if (exp.second.def.contains("[")) {
@@ -319,12 +351,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
                     }
                 }
                 if (array != array2) {
-                    System.err.println("Error: Invalid types for statement");
+                    System.err.println(
+                            "Error: Invalid types for statement, at line:" + (exp.row + 1) + " column:" + exp.col);
                     exp.def = "ERROR";
                     return;
                 } else if (array == 1) {
                     if (arraySize != array2Size) {
-                        System.err.println("Error: Mismatch array sizes");
+                        System.err.println(
+                                "Error: Mismatch array sizes, at line:" + (exp.row + 1) + " column:" + exp.col);
                         exp.def = "ERROR";
                         return;
                     }
@@ -334,10 +368,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
                     exp.def = first;
                 } else if (!first.equals(second)) {
                     exp.def = "ERROR";
-                    System.err.println("Error: Invalid types for statement");
+                    System.err.println(
+                            "Error: Invalid types for statement, at line:" + (exp.row + 1) + " column:" + exp.col);
                 }
-            } else if (exp.first.def.equals("ERROR - undefined")) {
-                System.err.println("Error: Variable not defined");
+            }
+            if (exp.first.def.equals("ERROR - undefined")) {
+                System.err.println("Error: Variable not defined, at line:" + (exp.row + 1) + " column:" + exp.col);
+            }
+            if (exp.second.def.equals("ERROR - undefined")) {
+                System.err.println("Error: Variable not defined, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
         } else {
             exp.def = "ERROR";
@@ -348,11 +387,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.exps != null) {
             exp.exps.accept(this, level);
             if (!exp.exps.def.equals(funcType.split(" ")[2])) {
-                System.err.println("Error: Function return type mismatch");
+                System.err.println(
+                        "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
         } else {
             if (!funcType.split(" ")[2].equals("VOID")) {
-                System.err.println("Error: Function return type mismatch");
+                System.err.println(
+                        "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
         }
         funcType = null;
@@ -377,6 +418,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 left = allFirst[0];
                 if (allFirst.length > 2) {
                     array = 0;
+                    if (exp.lhs.def.contains("ERROR")) {
+                        exp.def = "ERROR";
+                        return;
+                    } else {
+                        if (!left.equals(exp.lhs.def.split("\\[")[2].split("]")[0])) {
+                            exp.def = "ERROR";
+                            System.err.println("Error: VOID type cannot be used to access array, at line:"
+                                    + (exp.row + 1) + " column:" + exp.col);
+                            return;
+                        }
+                    }
                 }
             }
             if (exp.rhs.def.contains("[")) {
@@ -386,16 +438,28 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 right = allSecond[0];
                 if (allSecond.length > 2) {
                     array2 = 0;
+                    if (exp.rhs.def.contains("ERROR")) {
+                        exp.def = "ERROR";
+                        return;
+                    } else {
+                        if (!right.equals(exp.rhs.def.split("\\[")[2].split("]")[0])) {
+                            exp.def = "ERROR";
+                            System.err.println("Error: VOID type cannot be used to access array, at line:"
+                                    + (exp.row + 1) + " column:" + exp.col);
+                            return;
+                        }
+                    }
                 }
             }
 
             if (array != array2) {
-                System.err.println("Error: Invalid types for statement");
+                System.err
+                        .println("Error: Invalid types for statement, at line:" + (exp.row + 1) + " column:" + exp.col);
                 exp.def = "ERROR";
                 return;
             } else if (array == 1) {
                 if (arraySize != array2Size) {
-                    System.err.println("Error: Mismatch array sizes");
+                    System.err.println("Error: Mismatch array sizes, at line:" + (exp.row + 1) + " column:" + exp.col);
                     exp.def = "ERROR";
                     return;
                 }
@@ -405,10 +469,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 exp.def = left;
             } else if (!left.equals(right)) {
                 exp.def = "ERROR";
-                System.err.println("Error: Invalid types for equation");
+                System.err
+                        .println("Error: Invalid types for equation, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
         } else if (exp.lhs.def.equals("ERROR - undefined") || exp.rhs.def.equals("ERROR - undefined")) {
-            System.err.println("Error: Variable not defined");
+            System.err.println("Error: Variable not defined, at line:" + (exp.row + 1) + " column:" + exp.col);
             exp.def = "ERROR";
         } else {
             exp.def = "ERROR";
@@ -424,7 +489,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.def = value.def.split(" ")[2];
         } else {
             exp.def = "ERROR";
-            System.err.println("Error: Unknown function");
+            System.err.println("Error: Unknown function, at line:" + (exp.row + 1) + " column:" + exp.col);
         }
     }
 
