@@ -286,7 +286,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.second != null)
             exp.second.accept(this, level);
 
-        if (!exp.first.def.equals("ERROR") || !exp.second.def.equals("ERROR")) {
+        if (!exp.first.def.equals("ERROR") && !exp.second.def.equals("ERROR")) {
             String first = exp.first.def;
             String second = exp.second.def;
             int array = 0;
@@ -329,6 +329,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 exp.def = "ERROR";
                 System.err.println("Error: Invalid types for statement");
             }
+        } else {
+            exp.def = "ERROR";
         }
     }
 
@@ -343,7 +345,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.op.accept(this, level);
         exp.rhs.accept(this, level);
 
-        if (!exp.lhs.def.equals("ERROR") || !exp.rhs.def.equals("ERROR")) {
+        if (!exp.lhs.def.equals("ERROR") && !exp.rhs.def.equals("ERROR")) {
             String left = exp.lhs.def;
             String right = exp.rhs.def;
             int array = 0;
@@ -387,6 +389,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 exp.def = "ERROR";
                 System.err.println("Error: Invalid types for equation");
             }
+        } else {
+            exp.def = "ERROR";
         }
     }
 
@@ -394,6 +398,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.name.accept(this, level);
         if (exp.args != null)
             exp.args.accept(this, level);
+        NodeType value = lookup(exp.name.info);
+        if (value != null) {
+            exp.def = value.def.split(" ")[2];
+        } else {
+            exp.def = "ERROR";
+            System.err.println("Error: Unknown function");
+        }
     }
 
 }
