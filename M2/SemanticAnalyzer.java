@@ -14,6 +14,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     int globalLevel = 0;
     String funcType = null;
     boolean flag = false;
+
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
     }
@@ -93,9 +94,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
             }
             exp.num.accept(this, level);
         }
-        NodeType test = lookup(exp.name.def);
+        NodeType test = lookup(exp.name.info);
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: redefined variable " + exp.name.def + " at the same level");
+            System.err.println("Error: redefined variable " + exp.name.info + " at the same level");
         } else {
             if (exp.type.def.equals("VOID")) {
                 System.err.println("Error: variables cannot be defined as VOID type");
@@ -103,9 +104,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
             }
             NodeType node;
             if (exp.num != null) {
-                node = new NodeType(exp.name.def, exp.type.def + " " + exp.num.def, globalLevel);
+                node = new NodeType(exp.name.info, exp.type.def + "[" + exp.num.info + "]", globalLevel);
             } else {
-                node = new NodeType(exp.name.def, exp.type.def, globalLevel);
+                node = new NodeType(exp.name.info, exp.type.def, globalLevel);
             }
             insert(node);
         }
@@ -115,12 +116,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.test != null) {
             exp.test.accept(this, level);
             String temp[] = exp.test.def.split(" ");
-            for(int i = 0; i<temp.length; i++){
+            for (int i = 0; i < temp.length; i++) {
                 NodeType n = lookup(temp[i]);
                 if (n != null && n.def.contains("VOID")) {
                     System.err.println("Error: if test can't be void");
                     break;
-                }   
+                }
             }
         }
         globalLevel++;
@@ -208,8 +209,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(VarExp exp, int level) {
-        if (exp.exprs != null)
+        if (exp.exprs != null) {
             exp.exprs.accept(this, level);
+        }
+
+        NodeType test = lookup(exp.name);
+        if (test != null) {
+            if (exp.exprs != null) {
+                exp.def = test.def + "[" + exp.exprs.info + "]";
+            } else {
+                exp.def = test.def;
+            }
+        }
     }
 
     public void visit(TypeExp exp, int level) {
@@ -219,11 +230,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
 
-        NodeType test = lookup(exp.name.def);
+        NodeType test = lookup(exp.name.info);
         globalLevel++;
         level++;
         indent(level);
-        System.out.println("Entering the scope for function " + exp.name.def + ":");
+        System.out.println("Entering the scope for function " + exp.name.info + ":");
         if (exp.params != null) {
             exp.params.accept(this, level);
         }
@@ -232,7 +243,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             System.err.println("Error: Function name already exist at the same level");
         } else {
             exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
-            NodeType node = new NodeType(exp.name.def, exp.type.def, globalLevel - 1);
+            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel - 1);
             insert(node);
         }
         if (exp.compound != null) {
@@ -255,15 +266,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(ParamExp exp, int level) {
         exp.type.accept(this, level);
         exp.name.accept(this, level);
-        NodeType test = lookup(exp.name.def);
+        NodeType test = lookup(exp.name.info);
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: Variable " + exp.name.def + " already exist at the same level");
+            System.err.println("Error: Variable " + exp.name.info + " already exist at the same level");
         } else {
             if (exp.type.def.equals("VOID")) {
                 System.err.println("Error: variables cannot be defined as VOID type");
                 exp.type.def = "INT";
             }
-            NodeType node = new NodeType(exp.name.def, exp.type.def, globalLevel);
+            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel);
             insert(node);
         }
 
@@ -274,48 +285,51 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.first.accept(this, level);
         if (exp.second != null)
             exp.second.accept(this, level);
-        String temp[] = exp.first.def.split(" ");
-        String type = "";
-        for (int i = 0; i < temp.length; i++) {
-            NodeType n = lookup(temp[i]);
-            if (n != null) {
-                if (type.equals("")) {
-                    type = n.def;
-                } else if (!n.def.equals(type)) {
-                    System.err.println("Error: Invalid comparison of types");
-                    flag = true;
-                    break;
-                }
-            } else {
-                if (!temp[i].contains("[")) {
-                    System.err.println("Error: variable not defined");
-                } else if (!type.equals("INT") && !type.equals("")) {
-                    System.err.println("Error: Invalid comparison of types");
+
+        if (!exp.first.def.equals("ERROR") || !exp.second.def.equals("ERROR")) {
+            String first = exp.first.def;
+            String second = exp.second.def;
+            int array = 0;
+            int array2 = 0;
+            int arraySize = 0;
+            int array2Size = 0;
+            if (exp.first.def.contains("[")) {
+                array = 1;
+                String[] allFirst = exp.first.def.split("\\[");
+                arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
+                first = allFirst[0];
+                if (allFirst.length > 2) {
+                    array = 0;
                 }
             }
-        }
-        if(!flag){
-            String temp2[] = exp.second.def.split(" ");
-            for (int i = 0; i < temp2.length; i++) {
-                NodeType n = lookup(temp2[i]);
-                if (n != null) {
-                    if (type.equals("")) {
-                        type = n.def;
-                    } else if (!n.def.equals(type)) {
-                        System.err.println("Error: Invalid comparison of types");
-                        flag = true;
-                        break;
-                    }
-                } else {
-                    if (!temp2[i].contains("[")) {
-                        System.err.println("Error: variable not defined");
-                    } else if (!type.equals("INT") && !type.equals("")) {
-                        System.err.println("Error: Invalid comparison of types");
-                    }
+            if (exp.second.def.contains("[")) {
+                array2 = 1;
+                String[] allSecond = exp.second.def.split("\\[");
+                array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
+                second = allSecond[0];
+                if (allSecond.length > 2) {
+                    array2 = 0;
                 }
             }
+            if (array != array2) {
+                System.err.println("Error: Invalid types for statement");
+                exp.def = "ERROR";
+                return;
+            } else if (array == 1) {
+                if (arraySize != array2Size) {
+                    System.err.println("Error: Mismatch array sizes");
+                    exp.def = "ERROR";
+                    return;
+                }
+            }
+
+            if (first.equals(second)) {
+                exp.def = first;
+            } else if (!first.equals(second)) {
+                exp.def = "ERROR";
+                System.err.println("Error: Invalid types for statement");
+            }
         }
-        flag = false;
     }
 
     public void visit(ReturnExp exp, int level) {
@@ -328,50 +342,52 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.lhs.accept(this, level);
         exp.op.accept(this, level);
         exp.rhs.accept(this, level);
-        String type = "";
-        if (!flag) {
-            String temp[] = exp.rhs.def.split(" ");
-            for (int i = 0; i < temp.length; i++) {
-                NodeType n = lookup(temp[i]);
-                if(n != null){
-                    if (type.equals("")) {
-                        type = n.def;
-                    } else if (!n.def.equals(type)) {
-                        System.err.println("Error: Invalid math on different types");
-                        flag = true;
-                        break;
-                    }
-                } else {
-                    if (!temp[i].contains("[")) {
-                        System.err.println("Error: variable not defined");
-                    } else if (!type.equals("INT")&& !type.equals("")) {
-                        System.err.println("Error: Invalid math on different types");
-                    }
+
+        if (!exp.lhs.def.equals("ERROR") || !exp.rhs.def.equals("ERROR")) {
+            String left = exp.lhs.def;
+            String right = exp.rhs.def;
+            int array = 0;
+            int array2 = 0;
+            int arraySize = 0;
+            int array2Size = 0;
+            if (exp.lhs.def.contains("[")) {
+                array = 1;
+                String[] allFirst = exp.lhs.def.split("\\[");
+                arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
+                left = allFirst[0];
+                if (allFirst.length > 2) {
+                    array = 0;
                 }
             }
-        }
-        if (!flag) {
-            String temp[] = exp.lhs.def.split(" ");
-            for (int i = 0; i < temp.length; i++) {
-                NodeType n = lookup(temp[i]);
-                if (n != null) {
-                    if (type.equals("")) {
-                        type = n.def;
-                    } else if (!n.def.equals(type)) {
-                        System.err.println("Error: Invalid math on different types");
-                        flag = true;
-                        break;
-                    }
-                }else{
-                    if(!temp[i].contains("[")){
-                        System.err.println("Error: variable not defined");
-                    }else if(!type.equals("INT") && !type.equals("")){
-                        System.err.println("Error: Invalid math on different types");
-                    }
+            if (exp.rhs.def.contains("[")) {
+                array2 = 1;
+                String[] allSecond = exp.rhs.def.split("\\[");
+                array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
+                right = allSecond[0];
+                if (allSecond.length > 2) {
+                    array2 = 0;
                 }
             }
+
+            if (array != array2) {
+                System.err.println("Error: Invalid types for statement");
+                exp.def = "ERROR";
+                return;
+            } else if (array == 1) {
+                if (arraySize != array2Size) {
+                    System.err.println("Error: Mismatch array sizes");
+                    exp.def = "ERROR";
+                    return;
+                }
+            }
+
+            if (left.equals(right)) {
+                exp.def = left;
+            } else if (!left.equals(right)) {
+                exp.def = "ERROR";
+                System.err.println("Error: Invalid types for equation");
+            }
         }
-        flag = false;
     }
 
     public void visit(CallExp exp, int level) {

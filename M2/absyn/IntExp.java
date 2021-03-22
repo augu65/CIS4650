@@ -7,7 +7,8 @@ public class IntExp extends Exp {
     this.row = row;
     this.col = col;
     this.value = value;
-    this.def = "[" + value + "]";
+    this.def = "INT";
+    this.info = value;
   }
 
   public void accept(AbsynVisitor visitor, int level) {
