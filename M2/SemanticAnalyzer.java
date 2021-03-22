@@ -13,7 +13,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
     HashMap<String, ArrayList<NodeType>> table;
     int globalLevel = 0;
     String funcType = null;
-    boolean flag = false;
 
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
@@ -240,14 +239,20 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
 
         if (test != null && test.level == globalLevel) {
-            System.err.println("Error: Function name already exist at the same level");
+            System.err.println("Error: Function name already exists at the same level");
         } else {
             exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
             NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel - 1);
             insert(node);
         }
+        funcType = exp.type.def;
         if (exp.compound != null) {
             exp.compound.accept(this, level);
+        }
+        if (funcType != null) {
+            if (funcType.split(" ")[2].equals("INT")) {
+                System.err.println("Error: Function declared with type INT but has no return");
+            }
         }
         printLevel(level);
         indent(level);
@@ -335,9 +340,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ReturnExp exp, int level) {
-        if (exp.exps != null)
+        if (exp.exps != null) {
             exp.exps.accept(this, level);
-
+            if (!exp.exps.def.equals(funcType.split(" ")[2])) {
+                System.err.println("Error: Function return type mismatch");
+            }
+        } else {
+            if (!funcType.split(" ")[2].equals("VOID")) {
+                System.err.println("Error: Function return type mismatch");
+            }
+        }
+        funcType = null;
     }
 
     public void visit(MathExp exp, int level) {

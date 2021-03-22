@@ -3,7 +3,7 @@ int k[3];
 int l[3];
 int j;
 
-int main (int hi) {
+void main (int hi) {
     if(j > 1){
         int h;
     }
@@ -13,6 +13,7 @@ void thing(int j) {
     j = 1;
     k[j] = 0 + 1 + l[1] + main(j);
     k = l;
+    return main();
 }
 
 
