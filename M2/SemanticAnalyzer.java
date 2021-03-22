@@ -219,6 +219,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
             } else {
                 exp.def = test.def;
             }
+        } else {
+            exp.def = "ERROR - undefined";
         }
     }
 
@@ -290,49 +292,52 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.first.accept(this, level);
         if (exp.second != null)
             exp.second.accept(this, level);
-
-        if (!exp.first.def.equals("ERROR") && !exp.second.def.equals("ERROR")) {
-            String first = exp.first.def;
-            String second = exp.second.def;
-            int array = 0;
-            int array2 = 0;
-            int arraySize = 0;
-            int array2Size = 0;
-            if (exp.first.def.contains("[")) {
-                array = 1;
-                String[] allFirst = exp.first.def.split("\\[");
-                arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
-                first = allFirst[0];
-                if (allFirst.length > 2) {
-                    array = 0;
+        if (exp.first != null && exp.second != null) {
+            if (!exp.first.def.contains("ERROR") && !exp.second.def.contains("ERROR")) {
+                String first = exp.first.def;
+                String second = exp.second.def;
+                int array = 0;
+                int array2 = 0;
+                int arraySize = 0;
+                int array2Size = 0;
+                if (exp.first.def.contains("[")) {
+                    array = 1;
+                    String[] allFirst = exp.first.def.split("\\[");
+                    arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
+                    first = allFirst[0];
+                    if (allFirst.length > 2) {
+                        array = 0;
+                    }
                 }
-            }
-            if (exp.second.def.contains("[")) {
-                array2 = 1;
-                String[] allSecond = exp.second.def.split("\\[");
-                array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
-                second = allSecond[0];
-                if (allSecond.length > 2) {
-                    array2 = 0;
+                if (exp.second.def.contains("[")) {
+                    array2 = 1;
+                    String[] allSecond = exp.second.def.split("\\[");
+                    array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
+                    second = allSecond[0];
+                    if (allSecond.length > 2) {
+                        array2 = 0;
+                    }
                 }
-            }
-            if (array != array2) {
-                System.err.println("Error: Invalid types for statement");
-                exp.def = "ERROR";
-                return;
-            } else if (array == 1) {
-                if (arraySize != array2Size) {
-                    System.err.println("Error: Mismatch array sizes");
+                if (array != array2) {
+                    System.err.println("Error: Invalid types for statement");
                     exp.def = "ERROR";
                     return;
+                } else if (array == 1) {
+                    if (arraySize != array2Size) {
+                        System.err.println("Error: Mismatch array sizes");
+                        exp.def = "ERROR";
+                        return;
+                    }
                 }
-            }
 
-            if (first.equals(second)) {
-                exp.def = first;
-            } else if (!first.equals(second)) {
-                exp.def = "ERROR";
-                System.err.println("Error: Invalid types for statement");
+                if (first.equals(second)) {
+                    exp.def = first;
+                } else if (!first.equals(second)) {
+                    exp.def = "ERROR";
+                    System.err.println("Error: Invalid types for statement");
+                }
+            } else if (exp.first.def.equals("ERROR - undefined")) {
+                System.err.println("Error: Variable not defined");
             }
         } else {
             exp.def = "ERROR";
@@ -358,7 +363,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.op.accept(this, level);
         exp.rhs.accept(this, level);
 
-        if (!exp.lhs.def.equals("ERROR") && !exp.rhs.def.equals("ERROR")) {
+        if (!exp.lhs.def.contains("ERROR") && !exp.rhs.def.contains("ERROR")) {
             String left = exp.lhs.def;
             String right = exp.rhs.def;
             int array = 0;
@@ -402,6 +407,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 exp.def = "ERROR";
                 System.err.println("Error: Invalid types for equation");
             }
+        } else if (exp.lhs.def.equals("ERROR - undefined") || exp.rhs.def.equals("ERROR - undefined")) {
+            System.err.println("Error: Variable not defined");
+            exp.def = "ERROR";
         } else {
             exp.def = "ERROR";
         }

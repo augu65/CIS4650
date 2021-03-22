@@ -6,6 +6,7 @@ int j;
 void main (int hi) {
     if(j > 1){
         int h;
+        p = 1 + u;
     }
 }
 
