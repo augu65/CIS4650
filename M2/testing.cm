@@ -3,15 +3,16 @@ int k[3];
 int l[3];
 int j;
 
-void main (int hi) {
+void main (int hi, void t, int y) {
     if(j > 1){
         int h;
     }
 }
 
 void thing(int j) {
-    k[j] = 0 + 1 + l[main(j)];
-    return 1;
+    main(j, l[1], y);
+    thing(j, j);
+    return;
 }
 
 

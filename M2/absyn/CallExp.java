@@ -9,7 +9,6 @@ public class CallExp extends Exp {
         this.col = col;
         this.name = name;
         this.args = args;
-        this.def = null;
         this.info = name.info;
     }
 

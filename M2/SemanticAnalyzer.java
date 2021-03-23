@@ -11,11 +11,14 @@ import java.util.Set;
 public class SemanticAnalyzer implements AbsynVisitor {
 
     HashMap<String, ArrayList<NodeType>> table;
+    ArrayList<String> callArgs;
     int globalLevel = 0;
     String funcType = null;
+    int returned = 0;
 
     public SemanticAnalyzer() {
         table = new HashMap<String, ArrayList<NodeType>>();
+        callArgs = new ArrayList<String>();
     }
 
     private void insert(NodeType node) {
@@ -80,7 +83,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(ExpList expList, int level) {
         while (expList != null) {
             expList.head.accept(this, level);
+            if (expList.head.def != null) {
+                callArgs.add(expList.head.def);
+            }
             expList = expList.tail;
+
         }
     }
 
@@ -269,7 +276,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.compound != null) {
             exp.compound.accept(this, level);
         }
-        if (funcType != null) {
+        if (returned == 0) {
             if (funcType.split(" ")[2].equals("INT")) {
                 System.err.println("Error: Function declared with type INT but has no return, at line:" + (exp.row + 1)
                         + " column:" + exp.col);
@@ -396,7 +403,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
                         "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
         }
-        funcType = null;
+        returned++;
     }
 
     public void visit(MathExp exp, int level) {
@@ -481,10 +488,33 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(CallExp exp, int level) {
+        callArgs.clear();
         exp.name.accept(this, level);
-        if (exp.args != null)
+        if (exp.args != null) {
             exp.args.accept(this, level);
-        NodeType value = lookup(exp.name.info);
+        }
+        String all = "(";
+        for (String s : callArgs) {
+            String curr = s;
+            if (s.contains("[")) {
+                if (s.split("\\[").length > 2) {
+                    curr = s.split("\\[")[0];
+                }
+            }
+            all = all.concat(curr.replaceAll("[\\n]", ""));
+            all = all.concat(", ");
+        }
+        all = all.substring(0, all.length() - 2);
+        all = all.concat(")");
+        NodeType value = lookup(exp.name.name);
+
+        if (all.contains("ERROR")) {
+            System.err.println("Error: Variable not defined, at line:" + (exp.row + 1) + " column:" + exp.col);
+        }
+        if (!all.equals(value.def.split(" -> ")[0])) {
+            System.err.println("Error: Invalid function call, at line:" + (exp.row + 1) + " column:" + exp.col);
+        }
+
         if (value != null) {
             exp.def = value.def.split(" ")[2];
         } else {

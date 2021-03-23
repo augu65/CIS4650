@@ -5,13 +5,15 @@ Entering the global scope:
             h: INT
         Leaving a new block
         hi: INT
+        t: INT
+        y: INT
     Leaving the function scope
     Entering the scope for function thing:
         j: INT
     Leaving the function scope
     y: INT
     j: INT
-    main: (INT) -> VOID
+    main: (INT, INT, INT) -> VOID
     k: INT[3]
     l: INT[3]
     thing: (INT) -> VOID
