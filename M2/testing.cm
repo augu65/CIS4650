@@ -10,7 +10,7 @@ void main (int hi, void t, int y) {
 }
 
 void thing(int j) {
-    main(j, l[1], y);
+    main(j, l[1], a);
     thing(j, j);
     return;
 }

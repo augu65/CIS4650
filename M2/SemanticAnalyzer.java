@@ -268,11 +268,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
             System.err.println("Error: Function name already exists at the same level, at line:" + (exp.row + 1)
                     + " column:" + exp.col);
         } else {
-            exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
+            if (exp.params != null) {
+                exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
+            } else {
+                exp.type.def = "(" + ") -> " + exp.type.def;
+            }
             NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel - 1);
             insert(node);
         }
         funcType = exp.type.def;
+        returned = 0;
         if (exp.compound != null) {
             exp.compound.accept(this, level);
         }
@@ -421,7 +426,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
             if (exp.lhs.def.contains("[")) {
                 array = 1;
                 String[] allFirst = exp.lhs.def.split("\\[");
-                arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
                 left = allFirst[0];
                 if (allFirst.length > 2) {
                     array = 0;
@@ -441,7 +445,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
             if (exp.rhs.def.contains("[")) {
                 array2 = 1;
                 String[] allSecond = exp.rhs.def.split("\\[");
-                array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
                 right = allSecond[0];
                 if (allSecond.length > 2) {
                     array2 = 0;
@@ -464,12 +467,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
                         .println("Error: Invalid types for statement, at line:" + (exp.row + 1) + " column:" + exp.col);
                 exp.def = "ERROR";
                 return;
-            } else if (array == 1) {
-                if (arraySize != array2Size) {
-                    System.err.println("Error: Mismatch array sizes, at line:" + (exp.row + 1) + " column:" + exp.col);
-                    exp.def = "ERROR";
-                    return;
-                }
+            }
+            if (array == 1 || array2 == 1) {
+                System.err
+                        .println("Error: Invalid types for statement, at line:" + (exp.row + 1) + " column:" + exp.col);
+                exp.def = "ERROR";
+                return;
             }
 
             if (left.equals(right)) {
@@ -489,33 +492,37 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     public void visit(CallExp exp, int level) {
         callArgs.clear();
+        String all = "";
         exp.name.accept(this, level);
         if (exp.args != null) {
             exp.args.accept(this, level);
-        }
-        String all = "(";
-        for (String s : callArgs) {
-            String curr = s;
-            if (s.contains("[")) {
-                if (s.split("\\[").length > 2) {
-                    curr = s.split("\\[")[0];
+            all = all.concat("(");
+            for (String s : callArgs) {
+                String curr = s;
+                if (s.contains("[")) {
+                    if (s.split("\\[").length > 2) {
+                        curr = s.split("\\[")[0];
+                    }
                 }
+                all = all.concat(curr.replaceAll("[\\n]", ""));
+                all = all.concat(", ");
             }
-            all = all.concat(curr.replaceAll("[\\n]", ""));
-            all = all.concat(", ");
+            all = all.substring(0, all.length() - 2);
+            all = all.concat(")");
         }
-        all = all.substring(0, all.length() - 2);
-        all = all.concat(")");
+
         NodeType value = lookup(exp.name.name);
 
         if (all.contains("ERROR")) {
             System.err.println("Error: Variable not defined, at line:" + (exp.row + 1) + " column:" + exp.col);
-        }
-        if (!all.equals(value.def.split(" -> ")[0])) {
-            System.err.println("Error: Invalid function call, at line:" + (exp.row + 1) + " column:" + exp.col);
+            exp.def = "ERROR";
         }
 
         if (value != null) {
+            if (!all.equals(value.def.split(" -> ")[0])) {
+                System.err.println("Error: Invalid function call, at line:" + (exp.row + 1) + " column:" + exp.col);
+                exp.def = "ERROR";
+            }
             exp.def = value.def.split(" ")[2];
         } else {
             exp.def = "ERROR";

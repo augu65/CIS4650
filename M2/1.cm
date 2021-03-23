@@ -1,21 +1,23 @@
 /* This file has no errors */
 
 int hello;
+int testing[3];
 
-int main(void test){
-    void z;
-    void j;
+int main(int test){
     int k;
-    void s;
+    int s;
     while(k < 3) {
-        int afsf;
+        int s;
+        s = k + testing[2];
     }
     if(s <2){
-        void aaa;
+        int aaa;
     }
-    input();
+    return 0;
 }
-int test2(void a){
+
+int test2(int a){
     int m;
-    input();
+    main(m);
+    return m;
 }
