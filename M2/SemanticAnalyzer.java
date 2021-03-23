@@ -123,12 +123,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(IfExp exp, int level) {
         if (exp.test != null) {
             exp.test.accept(this, level);
-            String temp[] = exp.test.def.split(" ");
-            for (int i = 0; i < temp.length; i++) {
-                NodeType n = lookup(temp[i]);
-                if (n != null && n.def.contains("VOID")) {
-                    System.err.println("Error: if test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
-                    break;
+            if (exp.test.def.equals("VOID")) {
+                System.err.println("Error: If test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
+            } else {
+                String temp[] = exp.test.def.split(" ");
+                for (int i = 0; i < temp.length; i++) {
+                    NodeType n = lookup(temp[i]);
+                    if (n != null && n.def.contains("VOID")) {
+                        System.err.println(
+                                "Error: If test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
+                        break;
+                    }
                 }
             }
         }
@@ -192,13 +197,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
         globalLevel++;
         if (exp.test != null) {
             exp.test.accept(this, level);
-            String temp[] = exp.test.def.split(" ");
-            for (int i = 0; i < temp.length; i++) {
-                NodeType n = lookup(temp[i]);
-                if (n != null && n.def.contains("VOID")) {
-                    System.err.println(
-                            "Error: While test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
-                    break;
+            if (exp.test.def.equals("VOID")) {
+                System.err.println("Error: While test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
+            } else {
+                String temp[] = exp.test.def.split(" ");
+                for (int i = 0; i < temp.length; i++) {
+                    NodeType n = lookup(temp[i]);
+                    if (n != null && n.def.contains("VOID")) {
+                        System.err.println(
+                                "Error: While test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
+                        break;
+                    }
                 }
             }
         }
@@ -269,7 +278,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
                     + " column:" + exp.col);
         } else {
             if (exp.params != null) {
-                exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
+                if (exp.params.def.equalsIgnoreCase("VOID")) {
+                    exp.type.def = "(" + exp.params.def + ") -> " + exp.type.def;
+                } else {
+                    exp.type.def = "(" + exp.params.def.replaceAll("VOID", "INT") + ") -> " + exp.type.def;
+                }
             } else {
                 exp.type.def = "(" + ") -> " + exp.type.def;
             }
@@ -519,7 +532,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
 
         if (value != null) {
-            if (!all.equals(value.def.split(" -> ")[0])) {
+            String funcArgs = value.def.split(" -> ")[0];
+            if (funcArgs.equalsIgnoreCase("(VOID)")) {
+                funcArgs = "";
+            }
+            if (!all.equals(funcArgs)) {
                 System.err.println("Error: Invalid function call, at line:" + (exp.row + 1) + " column:" + exp.col);
                 exp.def = "ERROR";
             }
