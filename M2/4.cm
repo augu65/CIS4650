@@ -5,7 +5,7 @@
    Error: redefined variable j at the same level, at line:24 column:4
 
    Return with no param when expecting INT on line 25
-   Error: Function return type mismatch, at line:24 column:4
+   Error: Function return type mismatch, at line:25 column:4
  */
 
 void test(void){
