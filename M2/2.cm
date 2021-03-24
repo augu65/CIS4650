@@ -1,8 +1,8 @@
 /* Invalid access of an array on line 17
-   Error: VOID type cannot be used to access array, at line:9 column:11
+   Error: VOID type cannot be used to access array, at line:17 column:16
 
    Adition attemped with void and int types on line 20
-   Error: Invalid types for equation, at line:17 column:10
+   Error: Invalid types for equation, at line:20 column:10
 
    Function call missing paramaters on line 22
    Error: Invalid function call, at line:22 column:4
