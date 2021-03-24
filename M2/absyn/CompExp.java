@@ -10,6 +10,7 @@ public class CompExp extends Exp {
         this.col = col;
         this.first = first;
         this.second = second;
+        this.def = null;
     }
 
     public void accept(AbsynVisitor visitor, int level) {

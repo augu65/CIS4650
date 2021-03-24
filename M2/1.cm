@@ -1,16 +1,24 @@
 /* This file has no errors */
 
 int hello;
-void a[8];
+int testing[3];
 
-int main(void test){
-    int z;
-    j = j + 0;
-    while(z = 1) {
-      z * 1;
+int main(int test, int z){
+    int k;
+    int s;
+    while(k < 3) {
+        int s;
+        s = k + testing[2];
     }
-    if(j = 2) {
-      j = j / 1;
+    if(s <2){
+        int apples;
+        apples = k + s * testing[2];
     }
-    input();
+    return 0;
+}
+
+int test2(int a){
+    int m;
+    main(m);
+    return m;
 }

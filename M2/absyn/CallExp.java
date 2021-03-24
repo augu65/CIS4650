@@ -9,6 +9,7 @@ public class CallExp extends Exp {
         this.col = col;
         this.name = name;
         this.args = args;
+        this.info = name.info;
     }
 
     public void accept(AbsynVisitor visitor, int level) {

@@ -1,20 +1,24 @@
-/* Invalid type on line 14
-   Error will print stating "Error : Invalid Type"
-   Tree will display TypeExp as "Error unrecognized type"
+/* Using a variable that is not defined on line 20
+   Error: Variable not defined, at line:20 column:5
 
-   Invalid factor on line 17
-   Error will print stating "Error : parameter list"
-   Tree will display nothing for ParamsExp under the function call
+   Mismatch of 2 sides of an assignment on line 21
+   Error: Invalid types for statement, at line:21 column:5
 
-   Invalid factor on line 19
-   Error will print stating "Error : Invalid factor"
-   Tree will display Expression as "Error missing values"
+   Returning a void in a int function on line 23
+   Error: Function return type mismatch, at line:23 column:2
  */
 
-string hello;
-void a[8];
+int a[8];
 
-int main( ,void test){
-    j = j + 0;
-    t=t*();
+void input(void){
+  return;
+}
+
+int main(int test){
+  int z;
+
+  a[2] = q;
+  a[z] = input();
+
+  return input();
 }
