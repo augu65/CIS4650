@@ -1,19 +1,26 @@
-/* Invalid parameter on line 14
-   Error will print stating "Error : Invalid type"
-   Tree will not display TypeExp as "Error unrecognized type"
+/* Void test condition for IF on line 18
+   Error: If test can't be void, at line:18 column:4
 
-   Invalid parameter on line 16
-   Error will print stating "Error : Invalid parameter list"
-   Tree will not display the parameter list for the function
+   Varaible redefined in the same function on line 24
+   Error: redefined variable j at the same level, at line:24 column:4
 
-   Invalid parameter on line 18
-   Error will print stating "Error : Invalid symbol found line:8 column:10"
-   Tree will not display OpExp as "Unrecognized symbol found"
+   Return with no param when expecting INT on line 25
+   Error: Function return type mismatch, at line:24 column:4
  */
 
-z[1];
+void test(void){
+  return;
+}
 
-int main(){
-    j = j + 0;
-    k = 1 & 2;
+int main(int y){
+    int j[1];
+   
+    if(test() == test()){
+      int k;
+    } else {
+      int q;
+    }
+
+    int j;
+    return;
 }
