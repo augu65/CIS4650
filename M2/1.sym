@@ -9,6 +9,7 @@ Entering the global scope:
         Leaving a new block
         s: INT
         test: INT
+        z: INT
         k: INT
     Leaving the function scope
     Entering the scope for function test2:
@@ -17,6 +18,6 @@ Entering the global scope:
     Leaving the function scope
     test2: (INT) -> INT
     testing: INT[3]
-    main: (INT) -> INT
+    main: (INT, INT) -> INT
     hello: INT
 Leaving the global scope

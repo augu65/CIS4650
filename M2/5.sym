@@ -3,6 +3,7 @@ Entering the global scope:
     Entering the scope for function main:
         a: INT
         c: INT
+        d: INT[3]
         y: INT
     Leaving the function scope
     b: INT[2]

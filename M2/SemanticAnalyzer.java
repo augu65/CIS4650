@@ -381,12 +381,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
                     exp.def = "ERROR";
                     return;
                 } else if (array == 1) {
-                    if (arraySize != array2Size) {
-                        System.err.println(
-                                "Error: Mismatch array sizes, at line:" + (exp.row + 1) + " column:" + exp.col);
-                        exp.def = "ERROR";
-                        return;
-                    }
+                    // if (arraySize != array2Size) {
+                    System.err.println("Error: Arrays cannot be used in assignments, at line:" + (exp.row + 1)
+                            + " column:" + exp.col);
+                    exp.def = "ERROR";
+                    return;
+                    // }
                 }
 
                 if (first.equals(second)) {
@@ -411,7 +411,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(ReturnExp exp, int level) {
         if (exp.exps != null) {
             exp.exps.accept(this, level);
-            if (!exp.exps.def.equals(funcType.split(" ")[2])) {
+            if (!exp.exps.def.equals(funcType.split(" -> ")[1])) {
                 System.err.println(
                         "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
