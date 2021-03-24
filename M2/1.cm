@@ -19,6 +19,6 @@ int main(int test, int z){
 
 int test2(int a){
     int m;
-    main(m);
+    main(m,a);
     return m;
 }
