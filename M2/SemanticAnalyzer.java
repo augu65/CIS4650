@@ -344,12 +344,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 String second = exp.second.def;
                 int array = 0;
                 int array2 = 0;
-                int arraySize = 0;
-                int array2Size = 0;
+               // int arraySize = 0;
+                //int array2Size = 0;
                 if (exp.first.def.contains("[")) {
                     array = 1;
                     String[] allFirst = exp.first.def.split("\\[");
-                    arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
+                  //  arraySize = Integer.parseInt(allFirst[1].split("]")[0]);
                     first = allFirst[0];
                     if (allFirst.length > 2) {
                         array = 0;
@@ -369,7 +369,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 if (exp.second.def.contains("[")) {
                     array2 = 1;
                     String[] allSecond = exp.second.def.split("\\[");
-                    array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
+                    //array2Size = Integer.parseInt(allSecond[1].split("]")[0]);
                     second = allSecond[0];
                     if (allSecond.length > 2) {
                         array2 = 0;
@@ -434,8 +434,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
             String right = exp.rhs.def;
             int array = 0;
             int array2 = 0;
-            int arraySize = 0;
-            int array2Size = 0;
+            //int arraySize = 0;
+           // int array2Size = 0;
             if (exp.lhs.def.contains("[")) {
                 array = 1;
                 String[] allFirst = exp.lhs.def.split("\\[");
