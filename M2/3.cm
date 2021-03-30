@@ -10,7 +10,7 @@
 
 int a[8];
 
-void input(void){
+void thing(void){
   int y;
   return;
 }
@@ -19,7 +19,7 @@ int main(int test){
   int z;
 
   a[2] = q;
-  a[z] = input();
+  a[z] = thing();
 
-  return input();
+  return thing();
 }
