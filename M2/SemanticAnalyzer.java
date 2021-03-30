@@ -21,7 +21,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         callArgs = new ArrayList<String>();
     }
 
-    private void insert(NodeType node) {
+    public void insert(NodeType node) {
         if (!table.containsKey(node.name)) {
             ArrayList<NodeType> list = new ArrayList<NodeType>();
             list.add(node);
@@ -242,6 +242,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
                     if (param != null) {
                         if (param.def.contains("->")) {
                             exp.def = test.def + "[" + param.def.split(" ")[2] + "]";
+                            if (param.def.split(" ")[2].equals("VOID")) {
+                                System.err.println("Error: VOID type cannot be used to access array, at line:"
+                                        + (exp.row + 1) + " column:" + exp.col);
+                            }
                         } else {
                             exp.def = test.def + "[" + param.def + "]";
                         }
@@ -273,7 +277,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.params.accept(this, level);
         }
 
-        if (test != null && test.level == globalLevel) {
+        if (test != null && test.level == 0) {
             System.err.println("Error: Function name already exists at the same level, at line:" + (exp.row + 1)
                     + " column:" + exp.col);
         } else {
@@ -295,7 +299,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             exp.compound.accept(this, level);
         }
         if (returned == 0) {
-            if (funcType.split(" ")[2].equals("INT")) {
+            if (funcType.split(" ").length > 2 && funcType.split(" ")[2].equals("INT")) {
                 System.err.println("Error: Function declared with type INT but has no return, at line:" + (exp.row + 1)
                         + " column:" + exp.col);
             }
@@ -410,7 +414,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
                         "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
         } else {
-            if (!funcType.split(" ")[2].equals("VOID")) {
+            if (!funcType.split(" -> ")[1].equals("VOID")) {
                 System.err.println(
                         "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
@@ -532,11 +536,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 System.err.println("Error: Invalid function call, at line:" + (exp.row + 1) + " column:" + exp.col);
                 exp.def = "ERROR";
             }
-            exp.def = value.def.split(" ")[2];
+            exp.def = value.def.split(" -> ")[1];
         } else {
             exp.def = "ERROR";
             System.err.println("Error: Unknown function, at line:" + (exp.row + 1) + " column:" + exp.col);
         }
+        callArgs.clear();
     }
 
 }
