@@ -1,0 +1,25 @@
+The Semantic analyzer tree is:
+Entering the global scope:
+    Entering the scope for function main:
+        Entering a new block
+            s: INT
+        Leaving a new block
+        Entering a new block
+            apples: INT
+        Leaving a new block
+        s: INT
+        test: INT
+        z: INT
+        k: INT
+    Leaving the function scope
+    Entering the scope for function test2:
+        a: INT
+        m: INT
+    Leaving the function scope
+    output: (INT) -> VOID
+    input: (VOID) -> INT
+    test2: (INT) -> INT
+    testing: INT[3]
+    main: (INT, INT) -> INT
+    hello: INT
+Leaving the global scope

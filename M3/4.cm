@@ -1,0 +1,27 @@
+/* Void test condition for IF on line 18
+   Error: If test can't be void, at line:18 column:4
+
+   Varaible redefined in the same function on line 24
+   Error: redefined variable j at the same level, at line:24 column:4
+
+   Return with no param when expecting INT on line 25
+   Error: Function return type mismatch, at line:25 column:4
+ */
+
+void test(void){
+  return;
+}
+
+int main(int y){
+    int j[1];
+    j[test()];
+   
+    if(test() == test()){
+      int k;
+    } else {
+      int q;
+    }
+
+    int j;
+    return;
+}
