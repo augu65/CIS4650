@@ -1,0 +1,43 @@
+A JFlex+Cup implementation for the cm language.
+***Source code given by Fei song was used in implementation.***
+
+Build Instruction:
+  To build the parse type make in the current directory. To run the code type
+  "java -classpath /usr/share/java/cup.jar:. CM fac.cm" . The fac.cm file will be the
+  input test file that the complier will evaluate. 
+ 
+  To display the syntax tree:
+  "java -classpath /usr/share/java/cup.jar:. CM fac.cm -a"
+
+   To display the Symantic tree:
+  "java -classpath /usr/share/java/cup.jar:. CM fac.cm -s"
+
+  To just test the scanner:
+  "java -classpath /usr/share/java/cup.jar:. Scanner < fac.cm".
+
+  To rebuild the parser, type "make clean" and type "make" again.
+
+Test Instructions:
+  Abstract Syntax tree:
+  To test this part of the code you can run the three files gcd.cm, sort.cm, and fac.cm through the code to enure that the scanner, parser 
+  and syntax tree are working properly.
+
+  In addition, test.cm was used to check for errors that could exist in the code. Some errors checked were missing parameters, 
+  missing/incorrect types, invalid parameters like ",param". Also errors were tested for if and while statements which did not 
+  have a test condition. The final error conditions that were tested was if a symbol is invalid in a simple statement 
+  (i.e. t = 1 % 1 or sort = 2/3&1).
+  Blank cm files were tested with the result being nothing outputed to the screen as there is no abstract syntax tree for a blank file.
+  Files with only sentences were also tested with the result being a error being outprinted to the screen.
+  
+  The scanner was also tested through the 5 files above seperatly to ensure that all the tokens generated were accurate and exaustive.
+
+  Symantic Tree:
+  To test this part of the code you can run files 1.cm to 5.cm to validate that symantic errors are caught and that the trees are created
+  correctly.
+
+  In addition, each symantic error case was tested with different parameters. Some such tests were using a void type in a if test, trying To
+  add an int array to an array, returning a value in a void function. The final few errors we checked were if a variable was redefined on the
+  same level twice, if a void array was defined, and ithings like (a[foo()]+1) worked.
+
+Limitations:
+  Not all errors are caught in the complier. Some such errors that are not caught are missing ";" and missing brackets.

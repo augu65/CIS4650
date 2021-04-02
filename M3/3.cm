@@ -1,0 +1,25 @@
+/* Using a variable that is not defined on line 21
+   Error: Variable not defined, at line:21 column:5
+
+   Mismatch of 2 sides of an assignment on line 22
+   Error: Invalid types for statement, at line:22 column:5
+
+   Returning a void in a int function on line 24
+   Error: Function return type mismatch, at line:24 column:2
+ */
+
+int a[8];
+
+void thing(void){
+  int y;
+  return;
+}
+
+int main(int test){
+  int z;
+
+  a[2] = q;
+  a[z] = thing();
+
+  return thing();
+}
