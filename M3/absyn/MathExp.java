@@ -20,7 +20,7 @@ public class MathExp extends Exp {
         this.def = null;
     }
 
-    public void accept(AbsynVisitor visitor, int level) {
-        visitor.visit(this, level);
+    public void accept(AbsynVisitor visitor, int level, boolean isAddr) {
+        visitor.visit(this, level, isAddr);
     }
 }

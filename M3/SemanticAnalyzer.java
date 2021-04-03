@@ -80,9 +80,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
             System.out.print(" ");
     }
 
-    public void visit(ExpList expList, int level) {
+    public void visit(ExpList expList, int level, boolean isAddr) {
         while (expList != null) {
-            expList.head.accept(this, level);
+            expList.head.accept(this, level, isAddr);
             if (expList.head.def != null) {
                 callArgs.add(expList.head.def);
             }
@@ -91,14 +91,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    public void visit(AssignExp exp, int level) {
-        exp.type.accept(this, level);
-        exp.name.accept(this, level);
+    public void visit(AssignExp exp, int level, boolean isAddr) {
+        exp.type.accept(this, level, isAddr);
+        exp.name.accept(this, level, isAddr);
         if (exp.num != null) {
             if (exp.type.def.equals("VOID")) {
                 System.err.println("Error: array type can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
             }
-            exp.num.accept(this, level);
+            exp.num.accept(this, level, isAddr);
         }
         NodeType test = lookup(exp.name.info);
         if (test != null && test.level == globalLevel) {
@@ -120,9 +120,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    public void visit(IfExp exp, int level) {
+    public void visit(IfExp exp, int level, boolean isAddr) {
         if (exp.test != null) {
-            exp.test.accept(this, level);
+            exp.test.accept(this, level, isAddr);
             if (exp.test.def.equals("VOID")) {
                 System.err.println("Error: If test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
             } else {
@@ -142,7 +142,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         indent(level);
         System.out.println("Entering a new block");
         if (exp.thenpart != null)
-            exp.thenpart.accept(this, level);
+            exp.thenpart.accept(this, level, isAddr);
         printLevel(level);
         deleteLevel(globalLevel);
         indent(level);
@@ -150,7 +150,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.elsepart != null) {
             indent(level);
             System.out.println("Entering a new block");
-            exp.elsepart.accept(this, level);
+            exp.elsepart.accept(this, level, isAddr);
             printLevel(level);
             indent(level);
             System.out.println("Leaving a new block");
@@ -161,10 +161,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     }
 
-    public void visit(IntExp exp, int level) {
+    public void visit(IntExp exp, int level, boolean isAddr) {
     }
 
-    public void visit(OpExp exp, int level) {
+    public void visit(OpExp exp, int level, boolean isAddr) {
         switch (exp.op) {
         case OpExp.PLUS:
             break;
@@ -193,10 +193,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    public void visit(RepeatExp exp, int level) {
+    public void visit(RepeatExp exp, int level, boolean isAddr) {
         globalLevel++;
         if (exp.test != null) {
-            exp.test.accept(this, level);
+            exp.test.accept(this, level, isAddr);
             if (exp.test.def.equals("VOID")) {
                 System.err.println("Error: While test can't be void, at line:" + (exp.row + 1) + " column:" + exp.col);
             } else {
@@ -216,7 +216,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             indent(level);
             System.out.println("Entering a new block");
             if (exp.exps != null)
-                exp.exps.accept(this, level);
+                exp.exps.accept(this, level, isAddr);
             printLevel(level);
             indent(level);
             System.out.println("Leaving a new block");
@@ -226,9 +226,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
         globalLevel--;
     }
 
-    public void visit(VarExp exp, int level) {
+    public void visit(VarExp exp, int level, boolean isAddr) {
         if (exp.exprs != null) {
-            exp.exprs.accept(this, level);
+            exp.exprs.accept(this, level, isAddr);
         }
 
         NodeType test = lookup(exp.name);
@@ -261,12 +261,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    public void visit(TypeExp exp, int level) {
+    public void visit(TypeExp exp, int level, boolean isAddr) {
     }
 
-    public void visit(FunExp exp, int level) {
-        exp.type.accept(this, level);
-        exp.name.accept(this, level);
+    public void visit(FunExp exp, int level, boolean isAddr) {
+        exp.type.accept(this, level, isAddr);
+        exp.name.accept(this, level, isAddr);
 
         NodeType test = lookup(exp.name.info);
         globalLevel++;
@@ -274,7 +274,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         indent(level);
         System.out.println("Entering the scope for function " + exp.name.info + ":");
         if (exp.params != null) {
-            exp.params.accept(this, level);
+            exp.params.accept(this, level, isAddr);
         }
 
         if (test != null && test.level == 0) {
@@ -296,7 +296,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         funcType = exp.type.def;
         returned = 0;
         if (exp.compound != null) {
-            exp.compound.accept(this, level);
+            exp.compound.accept(this, level, isAddr);
         }
         if (returned == 0) {
             if (funcType.split(" ").length > 2 && funcType.split(" ")[2].equals("INT")) {
@@ -313,14 +313,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
         funcType = null;
     }
 
-    public void visit(ParListExp exp, int level) {
-        exp.paramlist.accept(this, level);
-        exp.param.accept(this, level);
+    public void visit(ParListExp exp, int level, boolean isAddr) {
+        exp.paramlist.accept(this, level, isAddr);
+        exp.param.accept(this, level, isAddr);
     }
 
-    public void visit(ParamExp exp, int level) {
-        exp.type.accept(this, level);
-        exp.name.accept(this, level);
+    public void visit(ParamExp exp, int level, boolean isAddr) {
+        exp.type.accept(this, level, isAddr);
+        exp.name.accept(this, level, isAddr);
         NodeType test = lookup(exp.name.info);
         if (test != null && test.level == globalLevel) {
             System.err.println("Error: Variable " + exp.name.info + " already exist at the same level, at line:"
@@ -337,11 +337,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     }
 
-    public void visit(CompExp exp, int level) {
+    public void visit(CompExp exp, int level, boolean isAddr) {
         if (exp.first != null)
-            exp.first.accept(this, level);
+            exp.first.accept(this, level, isAddr);
         if (exp.second != null)
-            exp.second.accept(this, level);
+            exp.second.accept(this, level, isAddr);
         if (exp.first != null && exp.second != null) {
             if (!exp.first.def.contains("ERROR") && !exp.second.def.contains("ERROR")) {
                 String first = exp.first.def;
@@ -406,9 +406,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    public void visit(ReturnExp exp, int level) {
+    public void visit(ReturnExp exp, int level, boolean isAddr) {
         if (exp.exps != null) {
-            exp.exps.accept(this, level);
+            exp.exps.accept(this, level, isAddr);
             if (!exp.exps.def.equals(funcType.split(" -> ")[1])) {
                 System.err.println(
                         "Error: Function return type mismatch, at line:" + (exp.row + 1) + " column:" + exp.col);
@@ -422,10 +422,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
         returned++;
     }
 
-    public void visit(MathExp exp, int level) {
-        exp.lhs.accept(this, level);
-        exp.op.accept(this, level);
-        exp.rhs.accept(this, level);
+    public void visit(MathExp exp, int level, boolean isAddr) {
+        exp.lhs.accept(this, level, isAddr);
+        exp.op.accept(this, level, isAddr);
+        exp.rhs.accept(this, level, isAddr);
 
         if (!exp.lhs.def.contains("ERROR") && !exp.rhs.def.contains("ERROR")) {
             String left = exp.lhs.def;
@@ -499,12 +499,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
     }
 
-    public void visit(CallExp exp, int level) {
+    public void visit(CallExp exp, int level, boolean isAddr) {
         callArgs.clear();
         String all = "";
-        exp.name.accept(this, level);
+        exp.name.accept(this, level, isAddr);
         if (exp.args != null) {
-            exp.args.accept(this, level);
+            exp.args.accept(this, level, isAddr);
             all = all.concat("(");
             for (String s : callArgs) {
                 String curr = s;

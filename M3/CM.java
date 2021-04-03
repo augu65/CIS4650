@@ -16,6 +16,7 @@ import absyn.*;
 class CM {
   public static boolean SHOW_TREE = false;
   public static boolean SHOW_SEMATIC = false;
+  public static boolean SHOW_GENERATE = false;
 
   static public void main(String argv[]) {
     /* Start the parser */
@@ -25,14 +26,17 @@ class CM {
           SHOW_TREE = true;
         } else if (argv[i].equals("-s")) {
           SHOW_SEMATIC = true;
+        } else if (argv[i].equals("-c")) {
+          SHOW_GENERATE = true;
         }
-        if (!argv[i].equals("-a") && !argv[i].equals("-s")) {
+        if (!argv[i].equals("-a") && !argv[i].equals("-s") && !argv[i].equals("-c")) {
           argv[0] = argv[i];
         }
       }
-      if (!SHOW_TREE && !SHOW_SEMATIC) {
+      if (!SHOW_TREE && !SHOW_SEMATIC && !SHOW_GENERATE) {
         System.out.println("Please add the -a flag for the abstract syntax tree.");
         System.out.println("Please add the -s flag for the symantic analyzer tree.");
+        System.out.println("Please add the -c flag to generate assembly code.");
         return;
       }
       parser p = new parser(new Lexer(new FileReader(argv[0])));
@@ -42,7 +46,7 @@ class CM {
         System.setOut(out);
         System.out.println("The abstract syntax tree is:");
         ShowTreeVisitor visitor = new ShowTreeVisitor();
-        result.accept(visitor, 0);
+        result.accept(visitor, 0, false);
       }
       if (SHOW_SEMATIC && result != null) {
         System.out.flush();
@@ -55,9 +59,15 @@ class CM {
         visitor.insert(node);
         NodeType node2 = new NodeType("output", "(INT) -> VOID", 0);
         visitor.insert(node2);
-        result.accept(visitor, 0);
+        result.accept(visitor, 0, false);
         visitor.printLevel(0);
         System.out.println("Leaving the global scope");
+      }
+      if (SHOW_GENERATE && result != null) {
+        PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".tm", "") + ".abs"));
+        System.setOut(out);
+        codeGenerator visitor = new codeGenerator();
+        result.accept(visitor, 0, false);
       }
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */
