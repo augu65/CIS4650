@@ -3,9 +3,9 @@ package absyn;
 public class VarExp extends Exp {
   public String name;
   public Exp exprs;
-  public int nestLevel; // 0 for global, 1 for local
-  public int offset;
-  // links?
+  public int SimpleDec;
+  public int ArrayDec;
+  public int FunctionDec;
 
   public VarExp(int row, int col, String name, Exp exprs) {
     this.row = row;

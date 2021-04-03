@@ -64,10 +64,10 @@ class CM {
         System.out.println("Leaving the global scope");
       }
       if (SHOW_GENERATE && result != null) {
-        PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".tm", "") + ".abs"));
+        PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".tm"));
         System.setOut(out);
         codeGenerator visitor = new codeGenerator();
-        result.accept(visitor, 0, false);
+        visitor.visit(result, visitor);
       }
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */

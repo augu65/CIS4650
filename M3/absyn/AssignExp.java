@@ -4,6 +4,8 @@ public class AssignExp extends Exp {
   public VarExp name;
   public Exp type;
   public IntExp num;
+  public int nestLevel; // 0 for global, 1 for local
+  public int offset;
 
   public AssignExp(int row, int col, VarExp name, IntExp num, Exp type) {
     this.row = row;

@@ -1,35 +1,81 @@
+
 /*
   Created by: Kaylee Bigelow and Jonah Stegman
   File Name: codeGenerator.java
 */
 
 import absyn.*;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Set;
 
 public class codeGenerator implements AbsynVisitor {
     int mainEntry, globalOffset;
+    int emitLoc; // curr instruction
+    int highEmitLoc; // next available space
+    int ofpFO;
+    final int pc = 7;
+    final int gp = 6;
+    final int fp = 5;
+    final int ac = 0;
+    final int ac1 = 1;
 
-    public codeGenerator() {
-
+    public void emitRO(String op, int r, int s, int t, String c) {
+        System.out.print("  " + emitLoc + ":\t " + op + " " + r + ", " + s + ", " + t);
+        System.out.print("\t" + c + "\n");
+        ++emitLoc;
+        if (highEmitLoc < emitLoc)
+            highEmitLoc = emitLoc;
     }
 
-    // public void emitRO(char *op, int r, int s, int t, char *c){
-    // fprintf(code, "%3d: %5s %d, %d, %d", emitLoc, op, r, s, t);
-    // fprintf(code, "\t%s\n",c);
-    // ++emitLoc;
-    // if( highEmitLoc < emitLoc)
-    // highEmitLoc = emitLoc;
-    // }
+    public void emitRM(String op, int r, int d, int s, String c) {
+        System.out.print("  " + emitLoc + ":\t " + op + " " + r + ", " + d + "(" + s + ")");
+        System.out.print("\t" + c + "\n");
+        ++emitLoc;
+        if (highEmitLoc < emitLoc)
+            highEmitLoc = emitLoc;
+    }
 
-    // public void emitRM(char *op, int r, int d, int s, char *c){
-    // fprintf(code, "%3d: %5s %d, %d, %d", emitLoc, op, r, d, s);
-    // fprintf(code, "\t%s\n",c);
-    // ++emitLoc;
-    // if( highEmitLoc < emitLoc)
-    // highEmitLoc = emitLoc;
-    // }
+    public void emitRM_Abs(String op, int d, int s, String c) {
+        System.out.print("  " + emitLoc + ":\t " + op + " " + 7 + ", " + d + "(" + s + ")");
+        System.out.print("\t" + c + "\n");
+        ++emitLoc;
+        if (highEmitLoc < emitLoc)
+            highEmitLoc = emitLoc;
+    }
+
+    public void visit(Absyn trees, codeGenerator visitor) {
+        // generate the prelude
+        System.out.println("* Standard prelude:");
+        emitRM("LD", 6, 0, 0, "load gp with maxaddress");
+        emitRM("LDA", 5, 0, 6, "copy to gp to fp");
+        emitRM("ST", 0, 0, 0, "clear location 0");
+
+        // generate the i/o routines
+        System.out.println("* Jump around i/o routines here");
+        System.out.println("* code for input routine");
+        emitRM("ST", 0, -1, 5, "store return");
+        emitRO("IN", 0, 0, 0, "input");
+        emitRM("LD", 7, -1, 5, "return to caller");
+
+        System.out.println("* code for output routine");
+        emitRM("ST", 0, -1, 5, "store return");
+        emitRM("LD", 0, 0, 0, "load output value");
+        emitRO("OUT", 7, -1, 5, "output");
+        emitRM("LD", 5, 0, 6, "return to caller");
+        emitRM("LDA", 0, 0, 0, "jump around i/o code");
+        System.out.println("* End of standard prelude.");
+
+        // call the visit method for DecList
+        trees.accept(visitor, 0, false);
+
+        // generate finale
+        emitRM("ST", fp, globalOffset + ofpFO, fp, "push ofp");
+        emitRM("LDA", fp, globalOffset, fp, "push frame");
+        emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
+        emitRM_Abs("LDA", pc, mainEntry, "jump to main loc");
+        emitRM("LD", fp, ofpFO, fp, "pop frame");
+
+        System.out.println("* End of Execution");
+        emitRO("HALT", 0, 0, 0, "");
+    }
 
     final static int SPACES = 4;
 
@@ -39,6 +85,7 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(ExpList expList, int level, boolean isAddr) {
+        System.out.println("TEST");
         while (expList != null) {
             expList.head.accept(this, level, isAddr);
             expList = expList.tail;
