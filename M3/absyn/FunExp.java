@@ -14,6 +14,7 @@ public class FunExp extends Exp {
         this.type = type;
         this.params = params;
         this.compound = compound;
+        this.funaddr = -1;
     }
 
     public void accept(AbsynVisitor visitor, int level, boolean isAddr) {

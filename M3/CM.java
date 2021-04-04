@@ -67,6 +67,8 @@ class CM {
         PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".tm"));
         System.setOut(out);
         codeGenerator visitor = new codeGenerator();
+        visitor.emitComment("C-Minus Compilation to TM Code");
+        visitor.emitComment("File: " + argv[0].replace(".cm", "") + ".tm");
         visitor.visit(result, visitor);
       }
     } catch (Exception e) {
