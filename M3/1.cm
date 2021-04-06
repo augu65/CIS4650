@@ -1,5 +1,6 @@
 /* This file has no errors */
 
 void main(void){
-    int k;
+    int x;
+    x = x + 3;
 }
