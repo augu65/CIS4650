@@ -21,34 +21,31 @@
   12:	 ST 0, -1(5)	save return address
 * -> compound statement
 * processing local var: x
-  13:	 LDA 0, -2(5)	
-  14:	 ST 0, -4(5)	
-  15:	 LDC 0, 1(0)	
-  16:	 ST 0, -5(5)	
-  17:	 LD 0, -4(5)	
-  18:	 LD 1, -5(5)	
-  19:	 ST 1, 0(0)	
-  20:	 ST 1, -3(5)	
-  21:	 LDA 0, -2(5)	
+  13:	 LD 0, -2(5)	
+  14:	 ST 0, -5(5)	
+  15:	 LDC 0, 6(0)	
+  16:	 ST 0, -6(5)	
+  17:	 LD 0, -5(5)	
+  18:	 LD 1, -6(5)	
+  19:	 ADD 0, 0, 1	
+  20:	 ST 0, -4(5)	
+  21:	 LDC 0, 1(0)	
   22:	 ST 0, -6(5)	
-  23:	 LD 0, -2(5)	
-  24:	 ST 0, -8(5)	
-  25:	 LDC 0, 3(0)	
-  26:	 ST 0, -9(5)	
-  27:	 LD 0, -8(5)	
-  28:	 LD 1, -9(5)	
-  29:	 ADD 0, 0, 1	
-  30:	 ST 0, -7(5)	
-  31:	 LD 0, -6(5)	
-  32:	 LD 1, -7(5)	
-  33:	 ST 1, 0(0)	
-  34:	 ST 1, -5(5)	
-  35:	 LD 7, -1(5)	return back to the caller
+  23:	 LDC 0, 1(0)	
+  24:	 ST 0, -7(5)	
+  25:	 LD 0, -6(5)	
+  26:	 LD 1, -7(5)	
+  27:	 ADD 0, 0, 1	
+  28:	 ST 0, -5(5)	
+  29:	 LD 0, -4(5)	
+  30:	 LD 1, -5(5)	
+  31:	 ST 0, -3(5)	
+  32:	 LD 7, -1(5)	return back to the caller
   11:	 LDA 7, 2(7)	jump forward to finale
-  36:	 ST 5, -9(5)	push ofp
-  37:	 LDA 5, -9(5)	push frame
-  38:	 LDA 0, 1(7)	load ac with ret ptr
-  39:	 LDA 7, -40(7)	jump to main loc
-  40:	 LD 5, 0(5)	pop frame
+  33:	 ST 5, -6(5)	push ofp
+  34:	 LDA 5, -6(5)	push frame
+  35:	 LDA 0, 1(7)	load ac with ret ptr
+  36:	 LDA 7, -37(7)	jump to main loc
+  37:	 LD 5, 0(5)	pop frame
 * End of Execution
-  41:	 HALT 0, 0, 0	
+  38:	 HALT 0, 0, 0	

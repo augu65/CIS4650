@@ -112,9 +112,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
             }
             NodeType node;
             if (exp.num != null) {
-                node = new NodeType(exp.name.info, exp.type.def + "[" + exp.num.info + "]", globalLevel);
+                node = new NodeType(exp.name.info, exp.type.def + "[" + exp.num.info + "]", globalLevel, 0);
             } else {
-                node = new NodeType(exp.name.info, exp.type.def, globalLevel);
+                node = new NodeType(exp.name.info, exp.type.def, globalLevel, 0);
             }
             insert(node);
         }
@@ -290,7 +290,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
             } else {
                 exp.type.def = "(" + ") -> " + exp.type.def;
             }
-            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel - 1);
+            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel - 1, 0);
             insert(node);
         }
         funcType = exp.type.def;
@@ -331,7 +331,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
                         + " column:" + exp.col);
                 exp.type.def = "INT";
             }
-            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel);
+            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, 0);
             insert(node);
         }
 

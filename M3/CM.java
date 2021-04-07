@@ -55,9 +55,9 @@ class CM {
         System.out.println("The Semantic analyzer tree is:");
         System.out.println("Entering the global scope:");
         SemanticAnalyzer visitor = new SemanticAnalyzer();
-        NodeType node = new NodeType("input", "(VOID) -> INT", 0);
+        NodeType node = new NodeType("input", "(VOID) -> INT", 0, 0);
         visitor.insert(node);
-        NodeType node2 = new NodeType("output", "(INT) -> VOID", 0);
+        NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, 0);
         visitor.insert(node2);
         result.accept(visitor, 0, false);
         visitor.printLevel(0);

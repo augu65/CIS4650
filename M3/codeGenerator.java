@@ -183,7 +183,7 @@ public class codeGenerator implements AbsynVisitor {
         exp.name.accept(this, level, false);
         globalOffset--;
         flag = true;
-        NodeType node = new NodeType(exp.name.info, exp.type.def, Integer.parseInt(exp.name.def));
+        NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
         insert(node);
     }
 
@@ -210,6 +210,42 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(OpExp exp, int level, boolean isAddr) {
+        switch (exp.op) {
+        case OpExp.PLUS:
+            exp.info = "+";
+            break;
+        case OpExp.MINUS:
+            exp.info = "-";
+            break;
+        case OpExp.TIMES:
+            exp.info = "*";
+            break;
+        case OpExp.OVER:
+            exp.info = "/";
+            break;
+        case OpExp.EQ:
+            exp.info = "==";
+            break;
+        case OpExp.LT:
+            exp.info = "<";
+            break;
+        case OpExp.GT:
+            exp.info = ">";
+            break;
+        case OpExp.LE:
+            exp.info = "<=";
+            break;
+        case OpExp.GE:
+            exp.info = ">=";
+            break;
+        case OpExp.NEQ:
+            exp.info = "!=";
+            break;
+        case OpExp.ERROR:
+            break;
+        default:
+            break;
+        }
     }
 
     public void visit(RepeatExp exp, int level, boolean isAddr) {
@@ -233,10 +269,10 @@ public class codeGenerator implements AbsynVisitor {
             }
             NodeType var = lookup(exp.name);
             if (isAddr) {
-                emitRM("LDA", 0, var.level, fp, "");
+                emitRM("LDA", 0, var.offset, fp, "");
                 emitRM("ST", 0, level, fp, "");
             } else if (!isAddr) {
-                emitRM("LD", 0, var.level, fp, "");
+                emitRM("LD", 0, var.offset, fp, "");
                 emitRM("ST", 0, level, fp, "");
             }
             globalOffset = level - 1;
@@ -253,7 +289,7 @@ public class codeGenerator implements AbsynVisitor {
         exp.name.accept(this, level, isAddr);
         flag = true;
         globalLevel++;
-        NodeType node = new NodeType(exp.name.info, exp.type.def, Integer.parseInt(exp.name.def));
+        NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
         insert(node);
 
         exp.funaddr = emitLoc;
@@ -291,7 +327,6 @@ public class codeGenerator implements AbsynVisitor {
 
     public void visit(CompExp exp, int level, boolean isAddr) {
         if (exp.first != null) {
-            // exp.first.SimpleDec = level + 1;
             exp.first.accept(this, level - 1, true);
         }
         if (exp.second != null)
@@ -313,23 +348,28 @@ public class codeGenerator implements AbsynVisitor {
         exp.lhs.accept(this, level - 1, false);
         exp.op.accept(this, level, isAddr);
         exp.rhs.accept(this, level - 2, false);
-
+        System.err.println(exp.op.def);
         emitRM("LD", ac, level - 1, fp, "");
         emitRM("LD", ac1, level - 2, fp, "");
-        // switch (exp.op.op) {
-        // case OpExp.PLUS:
-        emitRO("ADD", ac, ac, ac1, "");
-        // break;
-        // case OpExp.MINUS:
-        // break;
-        // case OpExp.TIMES:
-        // break;
-        // case OpExp.OVER:
-        // break;
-        // default:
-        // break;
-        // }
+
+        switch (exp.op.info) {
+        case "+":
+            emitRO("ADD", ac, ac, ac1, "");
+            break;
+        case "-":
+            emitRO("SUB", ac, ac, ac1, "");
+            break;
+        case "*":
+            emitRO("MUL", ac, ac, ac1, "");
+            break;
+        case "/":
+            emitRO("DIV", ac, ac, ac1, "");
+            break;
+        default:
+            break;
+        }
         emitRM("ST", ac, level, fp, "");
+
     }
 
     public void visit(CallExp exp, int level, boolean isAddr) {
