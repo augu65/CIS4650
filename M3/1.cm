@@ -2,6 +2,13 @@
 
 void main(void){
     int x;
-
+    x = 2;
     x = x + 3;
+    if(x<3){
+        int j;
+        while(x != 4){
+            j = j+1;
+        }
+    }
+    x = 2;
 }

@@ -155,7 +155,7 @@ public class codeGenerator implements AbsynVisitor {
         emitComment("End of standard prelude.");
 
         // call the visit method for DecList
-        trees.accept(visitor, 0, false);
+        trees.accept(visitor, initOF, false);
 
         // check if main is given
         // if mianEntry 0 throw error
@@ -163,7 +163,7 @@ public class codeGenerator implements AbsynVisitor {
         // generate finale
         emitRM("ST", fp, globalOffset + ofpFO, fp, "push ofp");
         emitRM("LDA", fp, globalOffset, fp, "push frame");
-        emitRM("LDA", ac, ac1, pc, "load ac with ret ptr");
+        emitRM("LDA", ac, 1, pc, "load ac with ret ptr");
         emitRM_Abs("LDA", pc, mainEntry, "jump to main loc");
         emitRM("LD", fp, ofpFO, fp, "pop frame");
 
@@ -315,6 +315,12 @@ public class codeGenerator implements AbsynVisitor {
         exp.type.accept(this, level, isAddr);
         exp.name.accept(this, level, isAddr);
         flag = true;
+
+        if (exp.name.info.equals("main")) {
+            int loc = emitSkip(0);
+            mainEntry = loc + 1;
+        }
+
         globalLevel++;
         NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
         insert(node);
@@ -334,8 +340,9 @@ public class codeGenerator implements AbsynVisitor {
         }
 
         emitRM("LD", pc, -1, fp, "return back to the caller");
+        int savedLoc2 = emitSkip(0);
         emitBackup(savedLoc);
-        emitRM("LDA", pc, 2, pc, "jump forward to finale");
+        emitRM("LDA", pc, (savedLoc2 - 1 - savedLoc), pc, "jump forward to finale");
         emitRestore();
         deleteLevel(globalLevel);
         globalLevel--;
