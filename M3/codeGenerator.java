@@ -33,9 +33,6 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void emitRO(String op, int r, int s, int t, String c) {
-        // System.out.print(" " + emitLoc + ":\t " + op + " " + r + ", " + s + ", " +
-        // t);
-        // System.out.print("\t" + c + "\n");
         System.out.printf("%3d: %5s %d, %d, %d", emitLoc, op, r, s, t);
         System.out.printf("\t%s\n", c);
         ++emitLoc;
@@ -44,9 +41,6 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void emitRM(String op, int r, int d, int s, String c) {
-        // System.out.print(" " + emitLoc + ":\t " + op + " " + r + ", " + d + "(" + s +
-        // ")");
-        // System.out.print("\t" + c + "\n");
         System.out.printf("%3d: %5s %d, %d(%d)", emitLoc, op, r, d, s);
         System.out.printf("\t%s\n", c);
         ++emitLoc;
@@ -55,9 +49,6 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void emitRM_Abs(String op, int r, int a, String c) {
-        // System.out.print(" " + emitLoc + ":\t " + op + " " + r + ", " + (a - (emitLoc
-        // + 1)) + "(" + pc + ")");
-        // System.out.print("\t" + c + "\n");
         System.out.printf("%3d: %5s %d, %d(%d) ", emitLoc, op, r, (a - (emitLoc + 1)), pc);
         System.out.printf("\t%s\n", c);
 
@@ -139,15 +130,21 @@ public class codeGenerator implements AbsynVisitor {
         emitComment("Jump around i/o routines here");
         emitComment("code for input routine");
         int savedLoc = emitSkip(1);
+        int funLoc = emitSkip(0);
+        NodeType node = new NodeType("input", "(VOID) -> INT", 0, funLoc);
+        insert(node);
         emitRM("ST", 0, retOF, fp, "store return");
         emitRO("IN", 0, 0, 0, "input");
         emitRM("LD", 7, -1, 5, "return to caller");
 
         emitComment("code for output routine");
+        int funLoc2 = emitSkip(0);
+        NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, funLoc2);
+        insert(node2);
         emitRM("ST", 0, retOF, fp, "store return");
-        emitRM("LD", 0, 0, 0, "load output value");
-        emitRO("OUT", pc, 0, fp, "output");
-        emitRM("LD", fp, 0, gp, "return to caller");
+        emitRM("LD", 0, initOF, fp, "load output value");
+        emitRO("OUT", 0, 0, 0, "output");
+        emitRM("LD", 7, -1, 5, "return to caller");
         int savedLoc2 = emitSkip(0);
         emitBackup(savedLoc);
         emitRM_Abs("LDA", pc, savedLoc2, "jump around i/o code");
@@ -155,6 +152,7 @@ public class codeGenerator implements AbsynVisitor {
         emitComment("End of standard prelude.");
 
         // call the visit method for DecList
+        globalOffset = initOF;
         trees.accept(visitor, initOF, false);
 
         // check if main is given
@@ -295,14 +293,16 @@ public class codeGenerator implements AbsynVisitor {
                 exp.exprs.accept(this, level, isAddr);
             }
             NodeType var = lookup(exp.name);
-            if (isAddr) {
-                emitRM("LDA", 0, var.offset, fp, "");
-                emitRM("ST", 0, level, fp, "");
-            } else if (!isAddr) {
-                emitRM("LD", 0, var.offset, fp, "");
-                emitRM("ST", 0, level, fp, "");
+            if (var != null) {
+                if (isAddr) {
+                    emitRM("LDA", 0, var.offset, fp, "");
+                    emitRM("ST", 0, level, fp, "");
+                } else if (!isAddr) {
+                    emitRM("LD", 0, var.offset, fp, "");
+                    emitRM("ST", 0, level, fp, "");
+                }
+                globalOffset = level - 1;
             }
-            globalOffset = level - 1;
         }
         exp.def = "" + level;
     }
@@ -322,21 +322,26 @@ public class codeGenerator implements AbsynVisitor {
         }
 
         globalLevel++;
-        NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
-        insert(node);
+        int funlevel = globalLevel;
+        int funLoc = emitSkip(0);
+        exp.funaddr = funLoc;
 
         exp.funaddr = emitLoc;
         emitComment("processing function: " + exp.name.info);
-        emitComment("jump around fucntion body here");
+        emitComment("jump around function body here");
         int savedLoc = emitSkip(1);
         emitRM("ST", 0, retOF, fp, "save return address");
 
         if (exp.params != null) {
             exp.params.accept(this, level, isAddr);
         }
+
+        NodeType node = new NodeType(exp.name.info, exp.params.info, globalLevel, funLoc);
+        insert(node);
+
         if (exp.compound != null) {
             emitComment("-> compound statement");
-            exp.compound.accept(this, initOF, false);
+            exp.compound.accept(this, globalOffset, false);
         }
 
         emitRM("LD", pc, -1, fp, "return back to the caller");
@@ -352,11 +357,16 @@ public class codeGenerator implements AbsynVisitor {
     public void visit(ParListExp exp, int level, boolean isAddr) {
         exp.paramlist.accept(this, level, isAddr);
         exp.param.accept(this, level, isAddr);
+        exp.info = exp.paramlist.info + ", " + exp.param.info;
     }
 
     public void visit(ParamExp exp, int level, boolean isAddr) {
+        flag = false;
         exp.type.accept(this, level, isAddr);
-        exp.name.accept(this, level, isAddr);
+        exp.name.accept(this, globalOffset, isAddr);
+        flag = true;
+        globalOffset--;
+        exp.info = exp.name.def;
     }
 
     public void visit(CompExp exp, int level, boolean isAddr) {

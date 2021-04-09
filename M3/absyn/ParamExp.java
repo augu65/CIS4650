@@ -10,6 +10,7 @@ public class ParamExp extends Exp {
         this.name = name;
         this.type = type;
         this.def = type.def;
+        this.info = null;
     }
 
     public void accept(AbsynVisitor visitor, int level, boolean isAddr) {
