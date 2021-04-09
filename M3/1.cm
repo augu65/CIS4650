@@ -1,6 +1,7 @@
 /* This file has no errors */
 
 void main(int y, int u, int i){
- int x;
- x = 1;
+    int o;
+    o = input();
+    output(o);
 }

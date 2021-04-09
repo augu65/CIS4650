@@ -15,6 +15,7 @@ public class codeGenerator implements AbsynVisitor {
     int emitLoc; // curr instruction
     int highEmitLoc; // next available space
     HashMap<String, ArrayList<NodeType>> table;
+    ArrayList<String> callArgs;
     final int ofpFO = 0;
     final int retOF = -1;
     final int initOF = -2;
@@ -30,6 +31,7 @@ public class codeGenerator implements AbsynVisitor {
         mainEntry = 0; // change from 0 if find main func
         globalOffset = 0;
         table = new HashMap<String, ArrayList<NodeType>>();
+        callArgs = new ArrayList<String>();
     }
 
     public void emitRO(String op, int r, int s, int t, String c) {
@@ -131,7 +133,7 @@ public class codeGenerator implements AbsynVisitor {
         emitComment("code for input routine");
         int savedLoc = emitSkip(1);
         int funLoc = emitSkip(0);
-        NodeType node = new NodeType("input", "(VOID) -> INT", 0, funLoc);
+        NodeType node = new NodeType("input", "VOID", 0, funLoc);
         insert(node);
         emitRM("ST", 0, retOF, fp, "store return");
         emitRO("IN", 0, 0, 0, "input");
@@ -139,7 +141,7 @@ public class codeGenerator implements AbsynVisitor {
 
         emitComment("code for output routine");
         int funLoc2 = emitSkip(0);
-        NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, funLoc2);
+        NodeType node2 = new NodeType("output", "-2", 0, funLoc2);
         insert(node2);
         emitRM("ST", 0, retOF, fp, "store return");
         emitRM("LD", 0, initOF, fp, "load output value");
@@ -180,6 +182,14 @@ public class codeGenerator implements AbsynVisitor {
         globalOffset = level;
         while (expList != null) {
             expList.head.accept(this, globalOffset, isAddr);
+            if (expList.head.def != null) {
+                try {
+                    int temp = Integer.parseInt(expList.head.info);
+                    callArgs.add("" + (globalOffset + 1));
+                } catch (NumberFormatException e) {
+                    callArgs.add(expList.head.def);
+                }
+            }
             expList = expList.tail;
         }
     }
@@ -207,9 +217,9 @@ public class codeGenerator implements AbsynVisitor {
         // jump to else
         emitBackup(savedLoc);
         if (exp.test.info.equals("true")) {
-            emitRM("LDA", pc, savedLoc2, pc, "");
+            emitRM("LDA", pc, savedLoc2 - savedLoc, pc, "");
         } else {
-            emitRM(exp.test.def, ac, savedLoc2, pc, "");
+            emitRM(exp.test.def, ac, savedLoc2 - savedLoc, pc, "");
         }
         emitRestore();
 
@@ -220,13 +230,14 @@ public class codeGenerator implements AbsynVisitor {
         // jump around else
         int savedLoc3 = emitSkip(0);
         emitBackup(savedLoc2);
-        emitRM("LDA", pc, savedLoc3, pc, "");
+        emitRM("LDA", pc, savedLoc3 - savedLoc2 - 1, pc, "");
         emitRestore();
     }
 
     public void visit(IntExp exp, int level, boolean isAddr) {
         emitRM("LDC", 0, Integer.parseInt(exp.value), 0, "");
         emitRM("ST", 0, level, fp, "");
+        globalOffset--;
     }
 
     public void visit(OpExp exp, int level, boolean isAddr) {
@@ -269,22 +280,24 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(RepeatExp exp, int level, boolean isAddr) {
+        int top = emitSkip(0);
         exp.test.accept(this, level, isAddr);
         // skip jump
         int savedLoc = emitSkip(1);
-        int savedLoc3 = emitSkip(0);
 
         if (exp.exps != null) {
             exp.exps.accept(this, level, isAddr);
         }
 
+        int savedLoc3 = emitSkip(0);
+        emitRM("LDA", pc, top - savedLoc3 - 1, pc, "jump to while");
+
         // jump around while body
         int savedLoc2 = emitSkip(0);
         emitBackup(savedLoc);
-        emitRM(exp.test.def, ac, savedLoc2, pc, "");
+        emitRM(exp.test.def, ac, savedLoc2 - savedLoc - 1, pc, "test condition");
         emitRestore();
 
-        emitRM("LDA", pc, savedLoc3, pc, "");
     }
 
     public void visit(VarExp exp, int level, boolean isAddr) {
@@ -323,20 +336,20 @@ public class codeGenerator implements AbsynVisitor {
 
         globalLevel++;
         int funlevel = globalLevel;
-        int funLoc = emitSkip(0);
-        exp.funaddr = funLoc;
 
         exp.funaddr = emitLoc;
         emitComment("processing function: " + exp.name.info);
         emitComment("jump around function body here");
         int savedLoc = emitSkip(1);
+        int funLoc = emitSkip(0);
+        exp.funaddr = funLoc;
         emitRM("ST", 0, retOF, fp, "save return address");
 
         if (exp.params != null) {
             exp.params.accept(this, level, isAddr);
         }
 
-        NodeType node = new NodeType(exp.name.info, exp.params.info, globalLevel, funLoc);
+        NodeType node = new NodeType(exp.name.name, exp.params.info, globalLevel - 1, funLoc);
         insert(node);
 
         if (exp.compound != null) {
@@ -463,10 +476,31 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(CallExp exp, int level, boolean isAddr) {
+        callArgs.clear();
+        flag = false;
         exp.name.accept(this, level, isAddr);
+        flag = true;
         if (exp.args != null) {
             exp.args.accept(this, level, isAddr);
+            // save args to function
+            // ST ac frameOffset+initOF(fp)
+            // ST ac frameOffset+initOF-1(fp)
+            for (int i = 0; i < callArgs.size(); i++) {
+                emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load valaue to ac");
+                emitRM("ST", ac, level + initOF - i, fp, "store arg value");
+            }
         }
+        NodeType n = lookup(exp.name.name);
+        emitRM("ST", fp, level + ofpFO, fp, "store current fp");
+        emitRM("LDA", fp, level, fp, "push new frame");
+        emitRM("LDA", ac, 1, pc, "save return in ac");
+        int savedLoc = emitSkip(0);
+
+        emitRM("LDA", pc, (n.offset - savedLoc - 1), pc, "relative jump to function entry");
+
+        // this happens when we get back
+        emitRM("LD", fp, ofpFO, fp, "pop current frame");
+        callArgs.clear();
     }
 
 }
