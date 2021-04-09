@@ -29,71 +29,73 @@
  17:   LDA 0, 1(7)	save return in ac
  18:   LDA 7, -15(7)	relative jump to function entry
  19:    LD 5, 0(5)	pop current frame
- 20:    LD 0, -5(5)	
- 21:    LD 1, -6(5)	
- 22:    ST 1, 0(0)	
- 23:    ST 1, -4(5)	
- 24:   LDA 0, -3(5)	
- 25:    ST 0, -7(5)	
- 26:   LDC 0, 1(0)	
- 27:    ST 0, -8(5)	
- 28:    LD 0, -7(5)	
- 29:    LD 1, -8(5)	
- 30:    ST 1, 0(0)	
- 31:    ST 1, -6(5)	
- 32:    LD 0, -2(5)	
- 33:    ST 0, -10(5)	
- 34:   LDC 0, 1(0)	
- 35:    ST 0, -11(5)	
- 36:    LD 0, -10(5)	
- 37:    LD 1, -11(5)	
- 38:   SUB 0, 0, 1	
- 39:    ST 0, -9(5)	
- 41:   LDA 0, -3(5)	
- 42:    ST 0, -10(5)	
- 43:    LD 0, -3(5)	
- 44:    ST 0, -12(5)	
- 45:    LD 0, -2(5)	
- 46:    ST 0, -13(5)	
- 47:    LD 0, -12(5)	
- 48:    LD 1, -13(5)	
- 49:   MUL 0, 0, 1	
- 50:    ST 0, -11(5)	
- 51:    LD 0, -10(5)	
- 52:    LD 1, -11(5)	
- 53:    ST 1, 0(0)	
- 54:    ST 1, -9(5)	
- 55:   LDA 0, -2(5)	
- 56:    ST 0, -15(5)	
- 57:    LD 0, -2(5)	
- 58:    ST 0, -17(5)	
- 59:   LDC 0, 1(0)	
- 60:    ST 0, -18(5)	
- 61:    LD 0, -17(5)	
- 62:    LD 1, -18(5)	
- 63:   SUB 0, 0, 1	
- 64:    ST 0, -16(5)	
- 65:    LD 0, -15(5)	
- 66:    LD 1, -16(5)	
- 67:    ST 1, 0(0)	
- 68:    ST 1, -14(5)	
- 69:   LDA 7, -38(7)	jump to while
- 40:   JLT 0, 29(7)	test condition
- 70:    LD 0, -3(5)	
- 71:    ST 0, -19(5)	
- 72:    LD 0, -19(5)	load valaue to ac
- 73:    ST 0, -21(5)	store arg value
- 74:    ST 5, -19(5)	store current fp
- 75:   LDA 5, -19(5)	push new frame
- 76:   LDA 0, 1(7)	save return in ac
- 77:   LDA 7, -71(7)	relative jump to function entry
- 78:    LD 5, 0(5)	pop current frame
- 79:    LD 7, -1(5)	return back to the caller
- 11:   LDA 7, 68(7)	jump forward to finale
- 80:    ST 5, -20(5)	push ofp
- 81:   LDA 5, -20(5)	push frame
- 82:   LDA 0, 1(7)	load ac with ret ptr
- 83:   LDA 7, -72(7) 	jump to main loc
- 84:    LD 5, 0(5)	pop frame
+ 20:    ST 0, -6(5)	store return
+ 21:    LD 0, -5(5)	
+ 22:    LD 1, -6(5)	
+ 23:    ST 1, 0(0)	
+ 24:    ST 1, -4(5)	
+ 25:   LDA 0, -3(5)	
+ 26:    ST 0, -7(5)	
+ 27:   LDC 0, 1(0)	
+ 28:    ST 0, -8(5)	
+ 29:    LD 0, -7(5)	
+ 30:    LD 1, -8(5)	
+ 31:    ST 1, 0(0)	
+ 32:    ST 1, -6(5)	
+ 33:    LD 0, -2(5)	
+ 34:    ST 0, -10(5)	
+ 35:   LDC 0, 1(0)	
+ 36:    ST 0, -11(5)	
+ 37:    LD 0, -10(5)	
+ 38:    LD 1, -11(5)	
+ 39:   SUB 0, 0, 1	
+ 40:    ST 0, -9(5)	
+ 42:   LDA 0, -3(5)	
+ 43:    ST 0, -10(5)	
+ 44:    LD 0, -3(5)	
+ 45:    ST 0, -12(5)	
+ 46:    LD 0, -2(5)	
+ 47:    ST 0, -13(5)	
+ 48:    LD 0, -12(5)	
+ 49:    LD 1, -13(5)	
+ 50:   MUL 0, 0, 1	
+ 51:    ST 0, -11(5)	
+ 52:    LD 0, -10(5)	
+ 53:    LD 1, -11(5)	
+ 54:    ST 1, 0(0)	
+ 55:    ST 1, -9(5)	
+ 56:   LDA 0, -2(5)	
+ 57:    ST 0, -15(5)	
+ 58:    LD 0, -2(5)	
+ 59:    ST 0, -17(5)	
+ 60:   LDC 0, 1(0)	
+ 61:    ST 0, -18(5)	
+ 62:    LD 0, -17(5)	
+ 63:    LD 1, -18(5)	
+ 64:   SUB 0, 0, 1	
+ 65:    ST 0, -16(5)	
+ 66:    LD 0, -15(5)	
+ 67:    LD 1, -16(5)	
+ 68:    ST 1, 0(0)	
+ 69:    ST 1, -14(5)	
+ 70:   LDA 7, -38(7)	jump to while
+ 41:   JLT 0, 29(7)	test condition
+ 71:    LD 0, -3(5)	
+ 72:    ST 0, -19(5)	
+ 73:    LD 0, -19(5)	load valaue to ac
+ 74:    ST 0, -21(5)	store arg value
+ 75:    ST 5, -19(5)	store current fp
+ 76:   LDA 5, -19(5)	push new frame
+ 77:   LDA 0, 1(7)	save return in ac
+ 78:   LDA 7, -72(7)	relative jump to function entry
+ 79:    LD 5, 0(5)	pop current frame
+ 80:    ST 0, -19(5)	store return
+ 81:    LD 7, -1(5)	return back to the caller
+ 11:   LDA 7, 70(7)	jump forward to finale
+ 82:    ST 5, -20(5)	push ofp
+ 83:   LDA 5, -20(5)	push frame
+ 84:   LDA 0, 1(7)	load ac with ret ptr
+ 85:   LDA 7, -74(7) 	jump to main loc
+ 86:    LD 5, 0(5)	pop frame
 * End of Execution
- 85:  HALT 0, 0, 0	
+ 87:  HALT 0, 0, 0	

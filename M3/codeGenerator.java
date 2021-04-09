@@ -482,9 +482,6 @@ public class codeGenerator implements AbsynVisitor {
         flag = true;
         if (exp.args != null) {
             exp.args.accept(this, level, isAddr);
-            // save args to function
-            // ST ac frameOffset+initOF(fp)
-            // ST ac frameOffset+initOF-1(fp)
             for (int i = 0; i < callArgs.size(); i++) {
                 emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load valaue to ac");
                 emitRM("ST", ac, level + initOF - i, fp, "store arg value");
@@ -500,6 +497,8 @@ public class codeGenerator implements AbsynVisitor {
 
         // this happens when we get back
         emitRM("LD", fp, ofpFO, fp, "pop current frame");
+        emitRM("ST", 0, level, fp, "store return");
+        exp.def = "" + level;
         callArgs.clear();
     }
 

@@ -16,37 +16,56 @@
  10:    LD 7, -1(5)	return to caller
   3:   LDA 7, 7(7) 	jump around i/o code
 * End of standard prelude.
-* processing function: main
+* processing function: test
 * jump around function body here
  12:    ST 0, -1(5)	save return address
+ 13:    LD 7, -1(5)	return back to the caller
+ 11:   LDA 7, 2(7)	jump forward to finale
+* processing function: main
+* jump around function body here
+ 15:    ST 0, -1(5)	save return address
 * -> compound statement
-* processing local var: o
- 13:   LDA 0, -5(5)	
- 14:    ST 0, -7(5)	
- 15:    ST 5, -8(5)	store current fp
- 16:   LDA 5, -8(5)	push new frame
- 17:   LDA 0, 1(7)	save return in ac
- 18:   LDA 7, -15(7)	relative jump to function entry
- 19:    LD 5, 0(5)	pop current frame
- 20:    LD 0, -7(5)	
- 21:    LD 1, -8(5)	
- 22:    ST 1, 0(0)	
- 23:    ST 1, -6(5)	
- 24:    LD 0, -5(5)	
- 25:    ST 0, -8(5)	
- 26:    LD 0, -8(5)	load valaue to ac
- 27:    ST 0, -10(5)	store arg value
- 28:    ST 5, -8(5)	store current fp
- 29:   LDA 5, -8(5)	push new frame
- 30:   LDA 0, 1(7)	save return in ac
- 31:   LDA 7, -25(7)	relative jump to function entry
- 32:    LD 5, 0(5)	pop current frame
- 33:    LD 7, -1(5)	return back to the caller
- 11:   LDA 7, 22(7)	jump forward to finale
- 34:    ST 5, -9(5)	push ofp
- 35:   LDA 5, -9(5)	push frame
- 36:   LDA 0, 1(7)	load ac with ret ptr
- 37:   LDA 7, -26(7) 	jump to main loc
- 38:    LD 5, 0(5)	pop frame
+* processing local var: x
+ 16:    ST 5, -3(5)	store current fp
+ 17:   LDA 5, -3(5)	push new frame
+ 18:   LDA 0, 1(7)	save return in ac
+ 19:   LDA 7, -16(7)	relative jump to function entry
+ 20:    LD 5, 0(5)	pop current frame
+ 21:    ST 0, -3(5)	store return
+ 22:   LDA 0, -2(5)	
+ 23:    ST 0, -4(5)	
+ 24:   LDC 0, 1(0)	
+ 25:    ST 0, -5(5)	
+ 26:    LD 0, -4(5)	
+ 27:    LD 1, -5(5)	
+ 28:    ST 1, 0(0)	
+ 29:    ST 1, -3(5)	
+ 30:   LDA 0, -2(5)	
+ 31:    ST 0, -7(5)	
+ 32:    LD 0, -2(5)	
+ 33:    ST 0, -9(5)	
+ 34:   LDC 0, 1(0)	
+ 35:    ST 0, -10(5)	
+ 36:    LD 0, -9(5)	
+ 37:    LD 1, -10(5)	
+ 38:   MUL 0, 0, 1	
+ 39:    ST 0, -8(5)	
+ 40:    LD 0, -7(5)	
+ 41:    LD 1, -8(5)	
+ 42:    ST 1, 0(0)	
+ 43:    ST 1, -6(5)	
+ 44:    ST 5, -11(5)	store current fp
+ 45:   LDA 5, -11(5)	push new frame
+ 46:   LDA 0, 1(7)	save return in ac
+ 47:   LDA 7, -36(7)	relative jump to function entry
+ 48:    LD 5, 0(5)	pop current frame
+ 49:    ST 0, -11(5)	store return
+ 50:    LD 7, -1(5)	return back to the caller
+ 14:   LDA 7, 36(7)	jump forward to finale
+ 51:    ST 5, -11(5)	push ofp
+ 52:   LDA 5, -11(5)	push frame
+ 53:   LDA 0, 1(7)	load ac with ret ptr
+ 54:   LDA 7, -40(7) 	jump to main loc
+ 55:    LD 5, 0(5)	pop frame
 * End of Execution
- 39:  HALT 0, 0, 0	
+ 56:  HALT 0, 0, 0	
