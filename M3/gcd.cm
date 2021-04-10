@@ -1,18 +1,17 @@
 int y;
+
 int gcd(int u, int v) {
-  output(u);
-  output(v);
   if (v == 0) return u;
-  else{
-    int t;
-    t = u - u/v*v;
-    return gcd(v, t);
+  else{ 
+    int j;
+    j = u - u/v*v;
+    return gcd(v, j);
   }
 }
 
 void main(void) {
   int x;
-  x = 25;
+  x = input();
   y = 10;
   output(gcd(x, y));
 }

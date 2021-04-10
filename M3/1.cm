@@ -9,7 +9,5 @@ void main(void) {
     int o; int u; int v; 
     u = 7;
     v = 2;
-    o = u - u/v*v;
-    output(o);
-    test(o,u - u/v*v);
+    test(u,v);
 }
