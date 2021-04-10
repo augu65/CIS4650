@@ -158,7 +158,9 @@ public class codeGenerator implements AbsynVisitor {
         trees.accept(visitor, initOF, false);
 
         // check if main is given
-        // if mianEntry 0 throw error
+        if (mainEntry == 0) {
+            // THROW AN ERROR (and prob halt)
+        }
 
         // generate finale
         emitRM("ST", fp, globalOffset + ofpFO, fp, "push ofp");
@@ -172,11 +174,6 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     final static int SPACES = 4;
-
-    private void indent(int level) {
-        for (int i = 0; i < level * SPACES; i++)
-            System.out.print(" ");
-    }
 
     public void visit(ExpList expList, int level, boolean isAddr) {
         globalOffset = level;
@@ -306,6 +303,7 @@ public class codeGenerator implements AbsynVisitor {
                 exp.exprs.accept(this, level, isAddr);
             }
             NodeType var = lookup(exp.name);
+
             if (var != null) {
                 if (isAddr) {
                     emitRM("LDA", 0, var.offset, fp, "");
@@ -346,7 +344,7 @@ public class codeGenerator implements AbsynVisitor {
         emitRM("ST", 0, retOF, fp, "save return address");
 
         if (exp.params != null) {
-            exp.params.accept(this, level, isAddr);
+            exp.params.accept(this, initOF, true);
         }
 
         NodeType node = new NodeType(exp.name.name, exp.params.info, globalLevel - 1, funLoc);
@@ -369,14 +367,20 @@ public class codeGenerator implements AbsynVisitor {
 
     public void visit(ParListExp exp, int level, boolean isAddr) {
         exp.paramlist.accept(this, level, isAddr);
-        exp.param.accept(this, level, isAddr);
+        exp.param.accept(this, globalLevel, isAddr);
         exp.info = exp.paramlist.info + ", " + exp.param.info;
     }
 
     public void visit(ParamExp exp, int level, boolean isAddr) {
-        flag = false;
+        if (!isAddr)
+            flag = false;
         exp.type.accept(this, level, isAddr);
-        exp.name.accept(this, globalOffset, isAddr);
+        exp.name.accept(this, level, isAddr);
+        NodeType n = lookup(exp.name.name);
+        if (n == null) {
+            NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
+            insert(node);
+        }
         flag = true;
         globalOffset--;
         exp.info = exp.name.def;
@@ -481,9 +485,9 @@ public class codeGenerator implements AbsynVisitor {
         exp.name.accept(this, level, isAddr);
         flag = true;
         if (exp.args != null) {
-            exp.args.accept(this, level, isAddr);
+            exp.args.accept(this, level, false);
             for (int i = 0; i < callArgs.size(); i++) {
-                emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load valaue to ac");
+                emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load value to ac");
                 emitRM("ST", ac, level + initOF - i, fp, "store arg value");
             }
         }

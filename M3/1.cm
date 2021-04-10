@@ -1,7 +1,15 @@
-/* This file has no errors */
 
-void main(int y, int u, int i){
-    int o;
-    o = input();
+int x;
+void test(int a, int b){
+    output(a);
+    output(b);
+}
+
+void main(void) {
+    int o; int u; int v; 
+    u = 7;
+    v = 2;
+    o = u - u/v*v;
     output(o);
+    test(o,u - u/v*v);
 }

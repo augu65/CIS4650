@@ -82,8 +82,8 @@
  41:   JLT 0, 29(7)	test condition
  71:    LD 0, -3(5)	
  72:    ST 0, -19(5)	
- 73:    LD 0, -19(5)	load valaue to ac
- 74:    ST 0, -21(5)	store arg value
+ 73:    LD 0, -19(5)	load value to ac
+ 74:    ST 0, -22(5)	store arg value
  75:    ST 5, -19(5)	store current fp
  76:   LDA 5, -19(5)	push new frame
  77:   LDA 0, 1(7)	save return in ac

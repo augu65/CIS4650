@@ -1,14 +1,18 @@
-/* A program to perform Euclid's 
-   algorithm to compute a gcd */
-
+int y;
 int gcd(int u, int v) {
+  output(u);
+  output(v);
   if (v == 0) return u;
-  else return gcd(v, u - u/v*v);
+  else{
+    int t;
+    t = u - u/v*v;
+    return gcd(v, t);
+  }
 }
- 
+
 void main(void) {
-  int x; int y;
-  x = input();
-  y = input();
+  int x;
+  x = 25;
+  y = 10;
   output(gcd(x, y));
 }
