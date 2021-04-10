@@ -230,7 +230,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.exprs != null) {
             exp.exprs.accept(this, level, isAddr);
         }
-
         NodeType test = lookup(exp.name);
         if (test != null) {
             if (exp.exprs != null) {
@@ -330,6 +329,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 System.err.println("Error: variables cannot be defined as VOID type, at line:" + (exp.row + 1)
                         + " column:" + exp.col);
                 exp.type.def = "INT";
+            }
+            if(exp.array == 1){
+                exp.type.def = exp.type.def+"[-1]";
             }
             NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, 0);
             insert(node);
@@ -532,6 +534,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
             if (funcArgs.equalsIgnoreCase("(VOID)")) {
                 funcArgs = "";
             }
+            all= all.replaceAll("\\[(.*?)\\]", "[]");
+            funcArgs=funcArgs.replaceAll("\\[(.*?)\\]", "[]");
             if (!all.equals(funcArgs)) {
                 System.err.println("Error: Invalid function call, at line:" + (exp.row + 1) + " column:" + exp.col);
                 exp.def = "ERROR";

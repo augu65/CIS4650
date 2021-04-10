@@ -121,6 +121,10 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
     if (exp.exprs != null)
       exp.exprs.accept(this, level, isAddr);
+    if(exp.array==1){
+      indent(level);
+      System.out.println("IntExp: -1");
+    }
   }
 
   public void visit(TypeExp exp, int level, boolean isAddr) {
