@@ -1,25 +1,19 @@
-/* Using a variable that is not defined on line 21
-   Error: Variable not defined, at line:21 column:5
+/* There are no errors in this file
+   This tests if and else statments,input and the output function.
+   If user enters 1 output will be 2, else it will be 100.
+*/
 
-   Mismatch of 2 sides of an assignment on line 22
-   Error: Invalid types for statement, at line:22 column:5
+void main(void) {
+  int x; int y;
 
-   Returning a void in a int function on line 24
-   Error: Function return type mismatch, at line:24 column:2
- */
+  x = input();
+  y = 1;
 
-int a[8];
+  if (x == 1) {
+    y = 2;
+  } else{
+    y = 100;
+  }
 
-void thing(void){
-  int y;
-  return;
-}
-
-int main(int test){
-  int z;
-
-  a[2] = q;
-  a[z] = thing();
-
-  return thing();
+  output(y);
 }

@@ -1,4 +1,6 @@
-/* There are no errors in this file
+/* Attempt to declare a void variable
+   Error: variables cannot be defined as VOID type, at line:15 column:2
+
    This tests recursive fucntion calls, and nested function calls.
    Output will be 10
 */
@@ -12,7 +14,7 @@ int test(int a) {
 }
 
 void main(void) {
-  int x;
+  void x;
   x = 1;
   output(test(x));
 }
