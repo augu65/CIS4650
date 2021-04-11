@@ -2,11 +2,7 @@ int y;
 
 int gcd(int u, int v) {
   if (v == 0) return u;
-  else{ 
-    int j;
-    j = u - u/v*v;
-    return gcd(v, j);
-  }
+  else return gcd(v, u - u/v*v);
 }
 
 void main(void) {

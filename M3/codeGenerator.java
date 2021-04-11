@@ -27,6 +27,7 @@ public class codeGenerator implements AbsynVisitor {
     final int ac1 = 1;
     int globalLevel = 0;
     boolean flag = true;
+    int inParam = 0;
 
     public codeGenerator() {
         mainEntry = 0; // change from 0 if find main func
@@ -410,6 +411,9 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(MathExp exp, int level, boolean isAddr) {
+        if (inParam == 1) {
+            inParam++;
+        }
         exp.lhs.accept(this, level - 1, false);
         exp.op.accept(this, level, isAddr);
         exp.rhs.accept(this, level - 2, false);
@@ -479,6 +483,10 @@ public class codeGenerator implements AbsynVisitor {
             break;
         }
         emitRM("ST", ac, level, fp, "store");
+        inParam--;
+        if (inParam == 1) {
+            callArgs.add("" + level);
+        }
 
     }
 
@@ -490,7 +498,9 @@ public class codeGenerator implements AbsynVisitor {
         System.err.println("-----------call to " + exp.name.name + "---------" + emitLoc + "---------");
         flag = true;
         if (exp.args != null) {
+            inParam = 1;
             exp.args.accept(this, level, false);
+            inParam = 0;
             int j = 0;
             for (int i = callArgs.size() - 1; i >= 0; i--) {
                 emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load value to ac");
