@@ -1,15 +1,10 @@
 
-int x;
-int test(int a, int b){
-    output(a);
-    return 5;
-    output(b);
-}
-
 void main(void) {
-    int o; int u; int v; 
-    u = 7;
-    v = 2;
-    v = test(u,v);
-    output(v);
+    int o[2]; int y;
+    y = 10;
+
+    o[0] = 5;
+    o[1] = o[0] + 7;
+    output(o[0]);
+    output(o[1]);
 }

@@ -161,7 +161,8 @@ public class codeGenerator implements AbsynVisitor {
 
         // check if main is given
         if (mainEntry == 0) {
-            // THROW AN ERROR (and prob halt)
+            // THROW AN ERROR
+            emitRO("HALT", 0, 0, 0, "");
         }
 
         // generate finale
@@ -186,6 +187,7 @@ public class codeGenerator implements AbsynVisitor {
                     int temp = Integer.parseInt(expList.head.info);
                     callArgs.add("" + (globalOffset + 1));
                 } catch (NumberFormatException e) {
+                    System.err.println(expList.head.info);
                     callArgs.add(expList.head.def);
                 }
             }
@@ -198,9 +200,28 @@ public class codeGenerator implements AbsynVisitor {
         flag = false;
         exp.type.accept(this, level, true);
         exp.name.accept(this, level, false);
+        if (exp.num != null) {
+            exp.num.accept(this, level, isAddr);
+        }
         globalOffset--;
         flag = true;
-        NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
+        NodeType node;
+        if (exp.num != null) {
+            try {
+                if (Integer.parseInt(exp.num.info) < 1) {
+                    // error
+                    emitRO("HALT", 0, 0, 0, "");
+                } else {
+                    globalOffset = globalOffset - Integer.parseInt(exp.num.info) + 1;
+                }
+            } catch (NumberFormatException e) {
+
+            }
+            node = new NodeType(exp.name.info, exp.type.def + "[" + exp.num.info + "]", globalLevel,
+                    Integer.parseInt(exp.name.def));
+        } else {
+            node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
+        }
         insert(node);
         emitComment("<- varDec");
     }
@@ -311,16 +332,54 @@ public class codeGenerator implements AbsynVisitor {
                 exp.exprs.accept(this, level, isAddr);
             }
             NodeType var = lookup(exp.name);
-
             if (var != null) {
+                int pos = 0;
+
                 emitComment("looking up id: " + exp.name);
+                if (var.def.contains("[") && exp.exprs == null) {
+                    // error
+                    emitRO("HALT", 0, 0, 0, "out of bounds");
+                } else if (!var.def.contains("[") && exp.exprs != null) {
+                    // error
+                    emitRO("HALT", 0, 0, 0, "out of bounds");
+                } else if (var.def.contains("[") && exp.exprs != null) {
+                    // check bounds
+
+                    String temp = var.def.split("\\[")[1];
+                    emitComment("-> array bounds check");
+                    try {
+                        if (Integer.parseInt(exp.exprs.info) < 0) {
+                            // error
+                            emitRO("HALT", 0, 0, 0, "out of bounds");
+                        } else if (Integer.parseInt(exp.exprs.info) >= Integer.parseInt(temp.split("]")[0])) {
+                            // error
+                            emitRO("HALT", 0, 0, 0, "out of bounds");
+                        }
+                        pos = Integer.parseInt(exp.exprs.info);
+                    } catch (NumberFormatException e) {
+                        // not a int
+
+                        pos = Integer.parseInt(exp.exprs.def); // idk what do here
+
+                        System.err.println(exp.exprs.info);
+                        System.err.println(exp.exprs.def);
+                        int arrSize = Integer.parseInt(temp.split("]")[0]);
+                        int accessSize = Integer.parseInt(exp.exprs.def);
+                        emitRM("LDC", ac, arrSize, 0, "load constant");
+                        emitRM("LD", ac1, accessSize, fp, "load id value");
+                        emitRO("SUB", ac, ac1, ac, "op -");
+                        emitRM("JGT", ac, 1, pc, "bouns check: jump");
+                        emitRO("HALT", 0, 0, 0, "out of bounds");
+
+                    }
+                    emitComment("<- array bounds check");
+                }
                 if (isAddr) {
-                    emitRM("LDA", 0, var.offset, fp, "load id address");
+                    emitRM("LDA", 0, var.offset - pos, fp, "load id address");
                     emitComment("<- id");
                     emitRM("ST", 0, level, fp, "op: push left");
                 } else if (!isAddr) {
-                    // System.err.println(exp.name + " " + var.offset);
-                    emitRM("LD", 0, var.offset, fp, "load id value");
+                    emitRM("LD", 0, var.offset - pos, fp, "load id value");
                     emitComment("<- id");
                     emitRM("ST", 0, level, fp, "op: push left");
                 }
@@ -362,6 +421,7 @@ public class codeGenerator implements AbsynVisitor {
         NodeType node = new NodeType(exp.name.name, exp.params.info, globalLevel - 1, funLoc);
         insert(node);
 
+        System.err.println("global " + globalOffset);
         if (exp.compound != null) {
             emitComment("-> compound statement");
             exp.compound.accept(this, globalOffset, false);
@@ -438,18 +498,22 @@ public class codeGenerator implements AbsynVisitor {
         case "+":
             emitRO("ADD", ac, ac, ac1, "op +");
             exp.info = "true";
+            // exp.def = "" + level;
             break;
         case "-":
             emitRO("SUB", ac, ac, ac1, "op -");
             exp.info = "true";
+            // exp.def = "" + level;
             break;
         case "*":
             emitRO("MUL", ac, ac, ac1, "op *");
             exp.info = "true";
+            // exp.def = "" + level;
             break;
         case "/":
             emitRO("DIV", ac, ac, ac1, "op /");
             exp.info = "true";
+            // exp.def = "" + level;
             break;
         case "==":
             // subtract and put in ac
@@ -511,18 +575,21 @@ public class codeGenerator implements AbsynVisitor {
         exp.name.accept(this, level, isAddr);
         flag = true;
         emitComment("-> call of function: " + exp.name.name);
+        System.err.println("------------------" + exp.name.name + "---------------");
 
         if (exp.args != null) {
             inParam = 1;
             exp.args.accept(this, level, false);
             inParam = 0;
             int j = 0;
+            System.err.println("size " + callArgs.size());
             for (int i = callArgs.size() - 1; i >= 0; i--) {
                 emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load value to ac");
                 emitRM("ST", ac, level + initOF - j, fp, "store arg value");
                 j++;
             }
         }
+        System.err.println("==================================");
 
         NodeType n = lookup(exp.name.name);
         emitRM("ST", fp, level + ofpFO, fp, "store current fp");
@@ -537,6 +604,7 @@ public class codeGenerator implements AbsynVisitor {
         emitRM("ST", 0, level, fp, "store return");
         exp.def = "" + level;
         emitComment("<- call");
+        callArgs.clear();
     }
 
 }
