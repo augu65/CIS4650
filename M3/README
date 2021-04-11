@@ -11,8 +11,11 @@ Build Instruction:
   To display the syntax tree:
   "java -classpath /usr/share/java/cup.jar:. CM fac.cm -a"
 
-   To display the Symantic tree:
+  To display the Symantic tree:
   "java -classpath /usr/share/java/cup.jar:. CM fac.cm -s"
+
+  To display the tm code:
+  "java -classpath /usr/share/java/cup.jar:. CM fac.cm -c"
 
   To just test the scanner:
   "java -classpath /usr/share/java/cup.jar:. Scanner < fac.cm".
@@ -41,5 +44,9 @@ Test Instructions:
   add an int array to an array, returning a value in a void function. The final few errors we checked were if a variable was redefined on the
   same level twice, if a void array was defined, and ithings like (a[foo()]+1) worked.
 
-Limitations:
-  Not all errors are caught in the complier. Some such errors that are not caught are missing ";" and missing brackets.
+  TM Code:
+  To test this part of the code you can run files 1.cm to 9.cm to validate that the code compiles and runs properly.
+  The tm code must be run through the tm simulator in order for it to run. 
+
+  In addition, the code was tested by running fac.cm and gcd cm. This included testing that input and output work correctly. Same with variable declarations,
+  initalizations, ifs and else, whiles, and calls. Math was also tested to ensure that all the +-*/ work. The final thing that was tested is returns and arrays.
