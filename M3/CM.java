@@ -56,16 +56,18 @@ class CM {
         PrintStream out =new PrintStream(new FileOutputStream("/dev/null"));
         System.setOut(out);
       }
-      System.out.println("The Semantic analyzer tree is:");
-      System.out.println("Entering the global scope:");
-      SemanticAnalyzer visitor = new SemanticAnalyzer();
-      NodeType node = new NodeType("input", "(VOID) -> INT", 0, 0);
-      visitor.insert(node);
-      NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, 0);
-      visitor.insert(node2);
-      result.accept(visitor, 0, false);
-      visitor.printLevel(0);
-      System.out.println("Leaving the global scope");
+      if(SHOW_GENERATE && result != null || SHOW_SEMATIC && result != null){
+        System.out.println("The Semantic analyzer tree is:");
+        System.out.println("Entering the global scope:");
+        SemanticAnalyzer visitor = new SemanticAnalyzer();
+        NodeType node = new NodeType("input", "(VOID) -> INT", 0, 0);
+        visitor.insert(node);
+        NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, 0);
+        visitor.insert(node2);
+        result.accept(visitor, 0, false);
+        visitor.printLevel(0);
+        System.out.println("Leaving the global scope");
+      }
       if (SHOW_GENERATE && result != null) {
         PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".tm"));
         System.setOut(out);
