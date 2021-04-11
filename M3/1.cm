@@ -2,7 +2,7 @@
 void main(void) {
     int o[2]; int y;
     y = 10;
-
+    int y;
     o[0] = 5;
     o[1] = o[0] + 7;
     output(o[0]);

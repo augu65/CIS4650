@@ -52,24 +52,27 @@ class CM {
         System.out.flush();
         PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".sym"));
         System.setOut(out);
-        System.out.println("The Semantic analyzer tree is:");
-        System.out.println("Entering the global scope:");
-        SemanticAnalyzer visitor = new SemanticAnalyzer();
-        NodeType node = new NodeType("input", "(VOID) -> INT", 0, 0);
-        visitor.insert(node);
-        NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, 0);
-        visitor.insert(node2);
-        result.accept(visitor, 0, false);
-        visitor.printLevel(0);
-        System.out.println("Leaving the global scope");
+      }else{
+        PrintStream out =new PrintStream(new FileOutputStream("/dev/null"));
+        System.setOut(out);
       }
+      System.out.println("The Semantic analyzer tree is:");
+      System.out.println("Entering the global scope:");
+      SemanticAnalyzer visitor = new SemanticAnalyzer();
+      NodeType node = new NodeType("input", "(VOID) -> INT", 0, 0);
+      visitor.insert(node);
+      NodeType node2 = new NodeType("output", "(INT) -> VOID", 0, 0);
+      visitor.insert(node2);
+      result.accept(visitor, 0, false);
+      visitor.printLevel(0);
+      System.out.println("Leaving the global scope");
       if (SHOW_GENERATE && result != null) {
         PrintStream out = new PrintStream(new FileOutputStream(argv[0].replace(".cm", "") + ".tm"));
         System.setOut(out);
-        codeGenerator visitor = new codeGenerator();
-        visitor.emitComment("C-Minus Compilation to TM Code");
-        visitor.emitComment("File: " + argv[0].replace(".cm", "") + ".tm");
-        visitor.visit(result, visitor);
+        codeGenerator visitor2 = new codeGenerator();
+        visitor2.emitComment("C-Minus Compilation to TM Code");
+        visitor2.emitComment("File: " + argv[0].replace(".cm", "") + ".tm");
+        visitor2.visit(result, visitor2);
       }
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */
