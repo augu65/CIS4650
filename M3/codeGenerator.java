@@ -194,7 +194,7 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level, boolean isAddr) {
-        emitComment("processing local var: " + exp.name.info);
+        emitComment("processing var: " + exp.name.info);
         flag = false;
         exp.type.accept(this, level, true);
         exp.name.accept(this, level, false);
@@ -202,9 +202,11 @@ public class codeGenerator implements AbsynVisitor {
         flag = true;
         NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
         insert(node);
+        emitComment("<- varDec");
     }
 
     public void visit(IfExp exp, int level, boolean isAddr) {
+        emitComment("-> if");
         exp.test.accept(this, level, isAddr);
         // skip jump
         int savedLoc = emitSkip(1);
@@ -216,9 +218,9 @@ public class codeGenerator implements AbsynVisitor {
         // jump to else
         emitBackup(savedLoc);
         if (exp.test.info.equals("true")) {
-            emitRM("LDA", pc, savedLoc2 - savedLoc, pc, "");
+            emitRM("LDA", pc, savedLoc2 - savedLoc, pc, "if: jump to else");
         } else {
-            emitRM(exp.test.def, ac, savedLoc2 - savedLoc, pc, "");
+            emitRM(exp.test.def, ac, savedLoc2 - savedLoc, pc, "if: jump to else");
         }
         emitRestore();
 
@@ -229,13 +231,16 @@ public class codeGenerator implements AbsynVisitor {
         // jump around else
         int savedLoc3 = emitSkip(0);
         emitBackup(savedLoc2);
-        emitRM("LDA", pc, savedLoc3 - savedLoc2 - 1, pc, "");
+        emitRM("LDA", pc, savedLoc3 - savedLoc2 - 1, pc, "jump to end");
         emitRestore();
+        emitComment("<- if");
     }
 
     public void visit(IntExp exp, int level, boolean isAddr) {
-        emitRM("LDC", 0, Integer.parseInt(exp.value), 0, "");
-        emitRM("ST", 0, level, fp, "");
+        emitComment("-> constant");
+        emitRM("LDC", 0, Integer.parseInt(exp.value), 0, "load constant");
+        emitComment("<- constant");
+        emitRM("ST", 0, level, fp, "op: push left");
         globalOffset--;
     }
 
@@ -279,6 +284,7 @@ public class codeGenerator implements AbsynVisitor {
     }
 
     public void visit(RepeatExp exp, int level, boolean isAddr) {
+        emitComment("-> while");
         int top = emitSkip(0);
         exp.test.accept(this, level, isAddr);
         // skip jump
@@ -289,14 +295,14 @@ public class codeGenerator implements AbsynVisitor {
         }
 
         int savedLoc3 = emitSkip(0);
-        emitRM("LDA", pc, top - savedLoc3 - 1, pc, "jump to while");
+        emitRM("LDA", pc, top - savedLoc3 - 1, pc, "while: absolute jump to test");
 
         // jump around while body
         int savedLoc2 = emitSkip(0);
         emitBackup(savedLoc);
-        emitRM(exp.test.def, ac, savedLoc2 - savedLoc - 1, pc, "test condition");
+        emitRM(exp.test.def, ac, savedLoc2 - savedLoc - 1, pc, "while: jump to end");
         emitRestore();
-
+        emitComment("<- while");
     }
 
     public void visit(VarExp exp, int level, boolean isAddr) {
@@ -307,13 +313,16 @@ public class codeGenerator implements AbsynVisitor {
             NodeType var = lookup(exp.name);
 
             if (var != null) {
+                emitComment("looking up id: " + exp.name);
                 if (isAddr) {
-                    emitRM("LDA", 0, var.offset, fp, "");
-                    emitRM("ST", 0, level, fp, "");
+                    emitRM("LDA", 0, var.offset, fp, "load id address");
+                    emitComment("<- id");
+                    emitRM("ST", 0, level, fp, "op: push left");
                 } else if (!isAddr) {
                     // System.err.println(exp.name + " " + var.offset);
-                    emitRM("LD", 0, var.offset, fp, "");
-                    emitRM("ST", 0, level, fp, "");
+                    emitRM("LD", 0, var.offset, fp, "load id value");
+                    emitComment("<- id");
+                    emitRM("ST", 0, level, fp, "op: push left");
                 }
                 globalOffset = level - 1;
             }
@@ -356,16 +365,17 @@ public class codeGenerator implements AbsynVisitor {
         if (exp.compound != null) {
             emitComment("-> compound statement");
             exp.compound.accept(this, globalOffset, false);
+            emitComment("<- compound statement");
         }
 
         emitRM("LD", pc, -1, fp, "return back to the caller");
         int savedLoc2 = emitSkip(0);
         emitBackup(savedLoc);
-        emitRM("LDA", pc, (savedLoc2 - 1 - savedLoc), pc, "jump forward to finale");
+        emitRM("LDA", pc, (savedLoc2 - 1 - savedLoc), pc, "jump around func body");
         emitRestore();
         deleteLevel(globalLevel);
         globalLevel--;
-
+        emitComment("<- funExp");
     }
 
     public void visit(ParListExp exp, int level, boolean isAddr) {
@@ -397,84 +407,88 @@ public class codeGenerator implements AbsynVisitor {
         if (exp.second != null)
             exp.second.accept(this, level - 2, false);
 
-        emitRM("LD", ac, level - 1, fp, "");
-        emitRM("LD", ac1, level - 2, fp, "");
-        emitRM("ST", ac1, ac, ac, "");
-        emitRM("ST", ac1, level, fp, "");
+        emitRM("LD", ac, level - 1, fp, "load left");
+        emitRM("LD", ac1, level - 2, fp, "load right");
+        emitRM("ST", ac1, ac, ac, "store in ac1");
+        emitRM("ST", ac1, level, fp, "assign: store value");
         exp.info = "true";
     }
 
     public void visit(ReturnExp exp, int level, boolean isAddr) {
+        emitComment("-> return");
         if (exp.exps != null) {
             exp.exps.accept(this, level, isAddr);
         }
+        emitRM("LD", pc, -1, fp, "return back to the caller");
+        emitComment("<- return");
     }
 
     public void visit(MathExp exp, int level, boolean isAddr) {
+        emitComment("-> mathExp");
         if (inParam == 1) {
             inParam++;
         }
         exp.lhs.accept(this, level - 1, false);
         exp.op.accept(this, level, isAddr);
         exp.rhs.accept(this, level - 2, false);
-        emitRM("LD", ac, level - 1, fp, "");
-        emitRM("LD", ac1, level - 2, fp, "");
+        emitRM("LD", ac, level - 1, fp, "load right");
+        emitRM("LD", ac1, level - 2, fp, "load left");
 
         switch (exp.op.info) {
         case "+":
-            emitRO("ADD", ac, ac, ac1, "");
+            emitRO("ADD", ac, ac, ac1, "op +");
             exp.info = "true";
             break;
         case "-":
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op -");
             exp.info = "true";
             break;
         case "*":
-            emitRO("MUL", ac, ac, ac1, "");
+            emitRO("MUL", ac, ac, ac1, "op *");
             exp.info = "true";
             break;
         case "/":
-            emitRO("DIV", ac, ac, ac1, "");
+            emitRO("DIV", ac, ac, ac1, "op /");
             exp.info = "true";
             break;
         case "==":
             // subtract and put in ac
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op ==");
             // JEQ -> if ac != 0 false
             exp.info = "false";
             exp.def = "JNE";
             break;
         case "<":
             // subtract and put in ac
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op <");
             // JGT -> if ac > 0 false
             exp.info = "false";
             exp.def = "JGT";
             break;
         case ">":
             // subtract and put in ac
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op >");
             // JLT -> if ac < 0 false
             exp.info = "false";
             exp.def = "JLT";
             break;
         case "<=":
             // subtract and put in ac
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op <=");
             // JGE -> if ac >= 0 false
             exp.info = "false";
             exp.def = "JGE";
             break;
         case ">=":
             // subtract and put in ac
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op >=");
             // JGE -> if ac <= 0 false
             exp.info = "false";
             exp.def = "JLE";
             break;
         case "!=":
             // subtract and put in ac
-            emitRO("SUB", ac, ac, ac1, "");
+            emitRO("SUB", ac, ac, ac1, "op !=");
             // JEQ -> if ac == 0 false
             exp.info = "false";
             exp.def = "JEQ";
@@ -482,12 +496,12 @@ public class codeGenerator implements AbsynVisitor {
         default:
             break;
         }
-        emitRM("ST", ac, level, fp, "store");
+        emitRM("ST", ac, level, fp, "store value from math");
         inParam--;
         if (inParam == 1) {
             callArgs.add("" + level);
         }
-
+        emitComment("<- mathExp");
     }
 
     public void visit(CallExp exp, int level, boolean isAddr) {
@@ -495,8 +509,9 @@ public class codeGenerator implements AbsynVisitor {
 
         flag = false;
         exp.name.accept(this, level, isAddr);
-        System.err.println("-----------call to " + exp.name.name + "---------" + emitLoc + "---------");
         flag = true;
+        emitComment("-> call of function: " + exp.name.name);
+
         if (exp.args != null) {
             inParam = 1;
             exp.args.accept(this, level, false);
@@ -509,7 +524,6 @@ public class codeGenerator implements AbsynVisitor {
             }
         }
 
-        System.err.println("-----------------------------------------");
         NodeType n = lookup(exp.name.name);
         emitRM("ST", fp, level + ofpFO, fp, "store current fp");
         emitRM("LDA", fp, level, fp, "push new frame");
@@ -522,6 +536,7 @@ public class codeGenerator implements AbsynVisitor {
         emitRM("LD", fp, ofpFO, fp, "pop current frame");
         emitRM("ST", 0, level, fp, "store return");
         exp.def = "" + level;
+        emitComment("<- call");
     }
 
 }

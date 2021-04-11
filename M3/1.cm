@@ -1,7 +1,8 @@
 
 int x;
-void test(int a, int b){
+int test(int a, int b){
     output(a);
+    return 5;
     output(b);
 }
 
@@ -9,5 +10,6 @@ void main(void) {
     int o; int u; int v; 
     u = 7;
     v = 2;
-    test(u,v);
+    v = test(u,v);
+    output(v);
 }

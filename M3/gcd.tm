@@ -16,114 +16,170 @@
  10:    LD 7, -1(5)	return to caller
   3:   LDA 7, 7(7) 	jump around i/o code
 * End of standard prelude.
-* processing local var: y
+* processing var: y
+* <- varDec
 * processing function: gcd
 * jump around function body here
  12:    ST 0, -1(5)	save return address
 * -> compound statement
- 13:    LD 0, -2(5)	
- 14:    ST 0, -6(5)	
- 15:   LDC 0, 0(0)	
- 16:    ST 0, -7(5)	
- 17:    LD 0, -6(5)	
- 18:    LD 1, -7(5)	
- 19:   SUB 0, 0, 1	
- 20:    ST 0, -5(5)	store
- 22:    LD 0, -3(5)	
- 23:    ST 0, -5(5)	
- 21:   JNE 0, 3(7)	
- 25:    LD 0, -2(5)	
- 26:    ST 0, -5(5)	
- 27:    LD 0, -3(5)	
- 28:    ST 0, -7(5)	
- 29:    LD 0, -3(5)	
- 30:    ST 0, -10(5)	
- 31:    LD 0, -2(5)	
- 32:    ST 0, -11(5)	
- 33:    LD 0, -10(5)	
- 34:    LD 1, -11(5)	
- 35:   DIV 0, 0, 1	
- 36:    ST 0, -9(5)	store
- 37:    LD 0, -2(5)	
- 38:    ST 0, -10(5)	
- 39:    LD 0, -9(5)	
- 40:    LD 1, -10(5)	
- 41:   MUL 0, 0, 1	
- 42:    ST 0, -8(5)	store
- 43:    LD 0, -7(5)	
- 44:    LD 1, -8(5)	
- 45:   SUB 0, 0, 1	
- 46:    ST 0, -6(5)	store
- 47:    LD 0, -9(5)	load value to ac
- 48:    ST 0, -7(5)	store arg value
- 49:    LD 0, -5(5)	load value to ac
- 50:    ST 0, -8(5)	store arg value
- 51:    ST 5, -5(5)	store current fp
- 52:   LDA 5, -5(5)	push new frame
- 53:   LDA 0, 1(7)	save return in ac
- 54:   LDA 7, -43(7)	relative jump to function entry
- 55:    LD 5, 0(5)	pop current frame
- 56:    ST 0, -5(5)	store return
- 24:   LDA 7, 32(7)	
- 57:    LD 7, -1(5)	return back to the caller
- 11:   LDA 7, 46(7)	jump forward to finale
+* -> if
+* -> mathExp
+* looking up id: v
+ 13:    LD 0, -2(5)	load id value
+* <- id
+ 14:    ST 0, -6(5)	op: push left
+* -> constant
+ 15:   LDC 0, 0(0)	load constant
+* <- constant
+ 16:    ST 0, -7(5)	op: push left
+ 17:    LD 0, -6(5)	load right
+ 18:    LD 1, -7(5)	load left
+ 19:   SUB 0, 0, 1	op ==
+ 20:    ST 0, -5(5)	store value from math
+* <- mathExp
+* -> return
+* looking up id: u
+ 22:    LD 0, -3(5)	load id value
+* <- id
+ 23:    ST 0, -5(5)	op: push left
+ 24:    LD 7, -1(5)	return back to the caller
+* <- return
+ 21:   JNE 0, 4(7)	if: jump to else
+* -> return
+* -> call of function: gcd
+* looking up id: v
+ 26:    LD 0, -2(5)	load id value
+* <- id
+ 27:    ST 0, -5(5)	op: push left
+* -> mathExp
+* looking up id: u
+ 28:    LD 0, -3(5)	load id value
+* <- id
+ 29:    ST 0, -7(5)	op: push left
+* -> mathExp
+* -> mathExp
+* looking up id: u
+ 30:    LD 0, -3(5)	load id value
+* <- id
+ 31:    ST 0, -10(5)	op: push left
+* looking up id: v
+ 32:    LD 0, -2(5)	load id value
+* <- id
+ 33:    ST 0, -11(5)	op: push left
+ 34:    LD 0, -10(5)	load right
+ 35:    LD 1, -11(5)	load left
+ 36:   DIV 0, 0, 1	op /
+ 37:    ST 0, -9(5)	store value from math
+* <- mathExp
+* looking up id: v
+ 38:    LD 0, -2(5)	load id value
+* <- id
+ 39:    ST 0, -10(5)	op: push left
+ 40:    LD 0, -9(5)	load right
+ 41:    LD 1, -10(5)	load left
+ 42:   MUL 0, 0, 1	op *
+ 43:    ST 0, -8(5)	store value from math
+* <- mathExp
+ 44:    LD 0, -7(5)	load right
+ 45:    LD 1, -8(5)	load left
+ 46:   SUB 0, 0, 1	op -
+ 47:    ST 0, -6(5)	store value from math
+* <- mathExp
+ 48:    LD 0, -9(5)	load value to ac
+ 49:    ST 0, -7(5)	store arg value
+ 50:    LD 0, -5(5)	load value to ac
+ 51:    ST 0, -8(5)	store arg value
+ 52:    ST 5, -5(5)	store current fp
+ 53:   LDA 5, -5(5)	push new frame
+ 54:   LDA 0, 1(7)	save return in ac
+ 55:   LDA 7, -44(7)	relative jump to function entry
+ 56:    LD 5, 0(5)	pop current frame
+ 57:    ST 0, -5(5)	store return
+* <- call
+ 58:    LD 7, -1(5)	return back to the caller
+* <- return
+ 25:   LDA 7, 33(7)	jump to end
+* <- if
+* <- compound statement
+ 59:    LD 7, -1(5)	return back to the caller
+ 11:   LDA 7, 48(7)	jump around func body
+* <- funExp
 * processing function: main
 * jump around function body here
- 59:    ST 0, -1(5)	save return address
+ 61:    ST 0, -1(5)	save return address
 * -> compound statement
-* processing local var: x
- 60:   LDA 0, -11(5)	
- 61:    ST 0, -13(5)	
- 62:    ST 5, -14(5)	store current fp
- 63:   LDA 5, -14(5)	push new frame
- 64:   LDA 0, 1(7)	save return in ac
- 65:   LDA 7, -62(7)	relative jump to function entry
- 66:    LD 5, 0(5)	pop current frame
- 67:    ST 0, -14(5)	store return
- 68:    LD 0, -13(5)	
- 69:    LD 1, -14(5)	
- 70:    ST 1, 0(0)	
- 71:    ST 1, -12(5)	
- 72:   LDA 0, -2(5)	
- 73:    ST 0, -15(5)	
- 74:   LDC 0, 10(0)	
- 75:    ST 0, -16(5)	
- 76:    LD 0, -15(5)	
- 77:    LD 1, -16(5)	
- 78:    ST 1, 0(0)	
- 79:    ST 1, -14(5)	
- 80:    LD 0, -11(5)	
- 81:    ST 0, -17(5)	
- 82:    LD 0, -2(5)	
- 83:    ST 0, -18(5)	
- 84:    LD 0, -18(5)	load value to ac
- 85:    ST 0, -19(5)	store arg value
- 86:    LD 0, -17(5)	load value to ac
- 87:    ST 0, -20(5)	store arg value
- 88:    ST 5, -17(5)	store current fp
- 89:   LDA 5, -17(5)	push new frame
- 90:   LDA 0, 1(7)	save return in ac
- 91:   LDA 7, -80(7)	relative jump to function entry
- 92:    LD 5, 0(5)	pop current frame
- 93:    ST 0, -17(5)	store return
- 94:    LD 0, -17(5)	load value to ac
- 95:    ST 0, -19(5)	store arg value
- 96:    LD 0, -18(5)	load value to ac
- 97:    ST 0, -20(5)	store arg value
- 98:    LD 0, -17(5)	load value to ac
- 99:    ST 0, -21(5)	store arg value
-100:    ST 5, -17(5)	store current fp
-101:   LDA 5, -17(5)	push new frame
-102:   LDA 0, 1(7)	save return in ac
-103:   LDA 7, -97(7)	relative jump to function entry
-104:    LD 5, 0(5)	pop current frame
-105:    ST 0, -17(5)	store return
-106:    LD 7, -1(5)	return back to the caller
- 58:   LDA 7, 48(7)	jump forward to finale
-107:    ST 5, -19(5)	push ofp
-108:   LDA 5, -19(5)	push frame
-109:   LDA 0, 1(7)	load ac with ret ptr
-110:   LDA 7, -52(7) 	jump to main loc
-111:    LD 5, 0(5)	pop frame
+* processing var: x
+* <- varDec
+* looking up id: x
+ 62:   LDA 0, -11(5)	load id address
+* <- id
+ 63:    ST 0, -13(5)	op: push left
+* -> call of function: input
+ 64:    ST 5, -14(5)	store current fp
+ 65:   LDA 5, -14(5)	push new frame
+ 66:   LDA 0, 1(7)	save return in ac
+ 67:   LDA 7, -64(7)	relative jump to function entry
+ 68:    LD 5, 0(5)	pop current frame
+ 69:    ST 0, -14(5)	store return
+* <- call
+ 70:    LD 0, -13(5)	load left
+ 71:    LD 1, -14(5)	load right
+ 72:    ST 1, 0(0)	store in ac1
+ 73:    ST 1, -12(5)	assign: store value
+* looking up id: y
+ 74:   LDA 0, -2(5)	load id address
+* <- id
+ 75:    ST 0, -15(5)	op: push left
+* -> constant
+ 76:   LDC 0, 10(0)	load constant
+* <- constant
+ 77:    ST 0, -16(5)	op: push left
+ 78:    LD 0, -15(5)	load left
+ 79:    LD 1, -16(5)	load right
+ 80:    ST 1, 0(0)	store in ac1
+ 81:    ST 1, -14(5)	assign: store value
+* -> call of function: output
+* -> call of function: gcd
+* looking up id: x
+ 82:    LD 0, -11(5)	load id value
+* <- id
+ 83:    ST 0, -17(5)	op: push left
+* looking up id: y
+ 84:    LD 0, -2(5)	load id value
+* <- id
+ 85:    ST 0, -18(5)	op: push left
+ 86:    LD 0, -18(5)	load value to ac
+ 87:    ST 0, -19(5)	store arg value
+ 88:    LD 0, -17(5)	load value to ac
+ 89:    ST 0, -20(5)	store arg value
+ 90:    ST 5, -17(5)	store current fp
+ 91:   LDA 5, -17(5)	push new frame
+ 92:   LDA 0, 1(7)	save return in ac
+ 93:   LDA 7, -82(7)	relative jump to function entry
+ 94:    LD 5, 0(5)	pop current frame
+ 95:    ST 0, -17(5)	store return
+* <- call
+ 96:    LD 0, -17(5)	load value to ac
+ 97:    ST 0, -19(5)	store arg value
+ 98:    LD 0, -18(5)	load value to ac
+ 99:    ST 0, -20(5)	store arg value
+100:    LD 0, -17(5)	load value to ac
+101:    ST 0, -21(5)	store arg value
+102:    ST 5, -17(5)	store current fp
+103:   LDA 5, -17(5)	push new frame
+104:   LDA 0, 1(7)	save return in ac
+105:   LDA 7, -99(7)	relative jump to function entry
+106:    LD 5, 0(5)	pop current frame
+107:    ST 0, -17(5)	store return
+* <- call
+* <- compound statement
+108:    LD 7, -1(5)	return back to the caller
+ 60:   LDA 7, 48(7)	jump around func body
+* <- funExp
+109:    ST 5, -19(5)	push ofp
+110:   LDA 5, -19(5)	push frame
+111:   LDA 0, 1(7)	load ac with ret ptr
+112:   LDA 7, -52(7) 	jump to main loc
+113:    LD 5, 0(5)	pop frame
 * End of Execution
-112:  HALT 0, 0, 0	
+114:  HALT 0, 0, 0	
