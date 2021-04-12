@@ -16,6 +16,8 @@ Build Instruction:
 
   To display the tm code:
   "java -classpath /usr/share/java/cup.jar:. CM fac.cm -c"
+  To run the tm code first compile the tm simulator then:
+  "./tm file.tm" then enter g to run through the code.
 
   To just test the scanner:
   "java -classpath /usr/share/java/cup.jar:. Scanner < fac.cm".
