@@ -1,6 +1,6 @@
 /* There are no errors in this file
-   This tests if and else statments,input and the output function.
-   If user enters 1 output will be 2, else it will be 100.
+   This tests if and else statments, nested blocks, input and the output function.
+   If user enters 1 output will be 2, enters 3 output will be 7, else it will be 100.
 */
 
 void main(void) {
@@ -12,7 +12,11 @@ void main(void) {
   if (x == 1) {
     y = 2;
   } else{
-    y = 100;
+    if (x == 3){
+      y = 7;
+    } else {
+      y = 100;
+    }
   }
 
   output(y);
