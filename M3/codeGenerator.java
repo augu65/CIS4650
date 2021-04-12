@@ -187,8 +187,26 @@ public class codeGenerator implements AbsynVisitor {
                     int temp = Integer.parseInt(expList.head.info);
                     callArgs.add("" + (globalOffset + 1));
                 } catch (NumberFormatException e) {
-                    System.err.println(expList.head.info);
-                    callArgs.add(expList.head.def);
+                    if (!expList.head.info.contains("[")) {
+                        NodeType n = lookup(expList.head.info);
+                        if (n != null) {
+                            if (n.def.contains("[")) {
+                                String temp = n.def.split("\\[")[1];
+                                temp = temp.split("]")[0];
+                                for (int i = Integer.parseInt(temp) - 1; i >= 0; i--) {
+                                    int pos = Integer.parseInt(expList.head.def) + i;
+                                    callArgs.add("" + pos);
+                                }
+                            } else {
+                                callArgs.add(expList.head.def);
+                            }
+                        } else {
+                            callArgs.add(expList.head.def);
+                        }
+                    } else {
+                        callArgs.add(expList.head.def);
+                    }
+
                 }
             }
             expList = expList.tail;
@@ -209,7 +227,6 @@ public class codeGenerator implements AbsynVisitor {
         if (exp.num != null) {
             try {
                 if (Integer.parseInt(exp.num.info) < 1) {
-                    // error
                     emitRO("HALT", 0, 0, 0, "");
                 } else {
                     globalOffset = globalOffset - Integer.parseInt(exp.num.info) + 1;
@@ -330,21 +347,18 @@ public class codeGenerator implements AbsynVisitor {
         if (flag) {
             if (exp.exprs != null) {
                 exp.exprs.accept(this, level, isAddr);
+                exp.info = exp.info + "[" + exp.exprs.info + "]";
             }
             NodeType var = lookup(exp.name);
             if (var != null) {
                 int pos = 0;
 
                 emitComment("looking up id: " + exp.name);
-                if (var.def.contains("[") && exp.exprs == null) {
-                    // error
-                    emitRO("HALT", 0, 0, 0, "out of bounds");
-                } else if (!var.def.contains("[") && exp.exprs != null) {
+                if (!var.def.contains("[") && exp.exprs != null) {
                     // error
                     emitRO("HALT", 0, 0, 0, "out of bounds");
                 } else if (var.def.contains("[") && exp.exprs != null) {
                     // check bounds
-
                     String temp = var.def.split("\\[")[1];
                     emitComment("-> array bounds check");
                     try {
@@ -353,16 +367,18 @@ public class codeGenerator implements AbsynVisitor {
                             emitRO("HALT", 0, 0, 0, "out of bounds");
                         } else if (Integer.parseInt(exp.exprs.info) >= Integer.parseInt(temp.split("]")[0])) {
                             // error
-                            emitRO("HALT", 0, 0, 0, "out of bounds");
+                            if (Integer.parseInt(temp.split("]")[0]) == -1) {
+                                if (Integer.parseInt(exp.exprs.info) > 10) {
+                                    emitRO("HALT", 0, 0, 0, "out of bounds");
+                                }
+                            } else {
+                                emitRO("HALT", 0, 0, 0, "out of bounds");
+                            }
                         }
                         pos = Integer.parseInt(exp.exprs.info);
                     } catch (NumberFormatException e) {
                         // not a int
 
-                        pos = Integer.parseInt(exp.exprs.def); // idk what do here
-
-                        System.err.println(exp.exprs.info);
-                        System.err.println(exp.exprs.def);
                         int arrSize = Integer.parseInt(temp.split("]")[0]);
                         int accessSize = Integer.parseInt(exp.exprs.def);
                         emitRM("LDC", ac, arrSize, 0, "load constant");
@@ -421,7 +437,6 @@ public class codeGenerator implements AbsynVisitor {
         NodeType node = new NodeType(exp.name.name, exp.params.info, globalLevel - 1, funLoc);
         insert(node);
 
-        System.err.println("global " + globalOffset);
         if (exp.compound != null) {
             emitComment("-> compound statement");
             exp.compound.accept(this, globalOffset, false);
@@ -452,6 +467,9 @@ public class codeGenerator implements AbsynVisitor {
         exp.name.accept(this, level, isAddr);
         NodeType n = lookup(exp.name.name);
         if (n == null) {
+            if (exp.type.def.contains("-1")) {
+                globalOffset = globalOffset - 9;
+            }
             NodeType node = new NodeType(exp.name.info, exp.type.def, globalLevel, Integer.parseInt(exp.name.def));
             insert(node);
         }
@@ -575,21 +593,19 @@ public class codeGenerator implements AbsynVisitor {
         exp.name.accept(this, level, isAddr);
         flag = true;
         emitComment("-> call of function: " + exp.name.name);
-        System.err.println("------------------" + exp.name.name + "---------------");
 
         if (exp.args != null) {
             inParam = 1;
             exp.args.accept(this, level, false);
             inParam = 0;
             int j = 0;
-            System.err.println("size " + callArgs.size());
+
             for (int i = callArgs.size() - 1; i >= 0; i--) {
                 emitRM("LD", ac, Integer.parseInt(callArgs.get(i)), fp, "load value to ac");
                 emitRM("ST", ac, level + initOF - j, fp, "store arg value");
                 j++;
             }
         }
-        System.err.println("==================================");
 
         NodeType n = lookup(exp.name.name);
         emitRM("ST", fp, level + ofpFO, fp, "store current fp");
