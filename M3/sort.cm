@@ -34,15 +34,15 @@ void sort(int a[], int low, int high) {
 void main(void) {
   int i;
   i = 0;
-  while (i < 10) {
+  while (i < 9) {
     x[i] = input();
     i = i + 1;
   }
 
-  sort(x, 0, 10);
+  sort(x, 0, 9);
 
   i = 0;
-  while (i < 10) {
+  while (i < 9) {
     output(x[i]);
     i = i + 1;
   }

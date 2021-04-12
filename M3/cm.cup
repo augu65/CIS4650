@@ -115,12 +115,12 @@ declaration_list     ::= declaration_list:l var_declaration:v
                      ;
 
 var_declaration      ::= type_specifier:t ID:i SEMI
-                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), null, t); :}
+                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null,0), null, t); :}
                      | type_specifier:t ID:i LBLOCKPAREN NUM:n RBLOCKPAREN SEMI
-                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), new IntExp(nleft, nright, n), t); :}
+                     {: RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null,0), new IntExp(nleft, nright, n), t); :}
                      | type_specifier:t ID:i LBLOCKPAREN error RBLOCKPAREN SEMI
                      {: parser.report_error("invalid value for array size", null); 
-                        RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null), new IntExp(0, 0, null), t); 
+                        RESULT= new AssignExp(tleft, tright, new VarExp(ileft, iright, i, null,0), new IntExp(0, 0, null), t); 
                      :}
                      ;
 type_specifier       ::= INT:i
@@ -132,10 +132,10 @@ type_specifier       ::= INT:i
                        RESULT = new TypeExp(eleft, eright, null, 2);:}
                      ;
 fun_declaration      ::= type_specifier:t ID:i LPAREN params:p RPAREN compound_stmt:c
-                     {: RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null), p, c); :}
+                     {: RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null, 0), p, c); :}
                      | type_specifier:t ID:i LPAREN error RPAREN compound_stmt:c
                      {:parser.report_error("Invalid parameter list", null); 
-                     RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null), null, c); :}
+                     RESULT = new FunExp(tleft, tright, t, new VarExp(ileft, iright, i, null,0), null, c); :}
                      ;
 params               ::= params:pl COMMA param:p
                      {: RESULT = new ParListExp(plleft, plright, pl, p); :}
@@ -149,9 +149,9 @@ params               ::= params:pl COMMA param:p
                      {: RESULT = new TypeExp(vleft, vright, v, 1);  :}
                      ;
 param                ::= type_specifier:t ID:i
-                     {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
+                     {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null,0)); :}
                      | type_specifier:t ID:i LBLOCKPAREN RBLOCKPAREN
-                     {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null)); :}
+                     {: RESULT = new ParamExp(tleft, tright, t, new VarExp(ileft, iright, i, null,1)); :}
                      ;
 compound_stmt        ::= LCURLY local_code:l RCURLY
                      {: 
@@ -224,12 +224,12 @@ expression           ::= var:v ASSIGN expression:e
                      {: RESULT = s; :}
                      ; 
 var                  ::= ID:i
-                     {: RESULT = new VarExp(ileft, iright, i, null); :}
+                     {: RESULT = new VarExp(ileft, iright, i, null,0); :}
                      | ID:i LBLOCKPAREN expression:e RBLOCKPAREN
-                     {: RESULT = new VarExp(ileft, iright, i, e); :}
+                     {: RESULT = new VarExp(ileft, iright, i, e,0); :}
                      |ID:i LBLOCKPAREN error RBLOCKPAREN
                      {:parser.report_error("Invalid var declaration",null); 
-                     RESULT = new VarExp(ileft, iright, i, null); :}
+                     RESULT = new VarExp(ileft, iright, i, null,0); :}
                      ;
 simple_expression    ::= additive_expression:a1 relop:r additive_expression:a2
                      {: RESULT = new MathExp(a1left, a2right, a1, r, a2, 0); :}
@@ -279,7 +279,7 @@ factor               ::= LPAREN expression:e RPAREN
                      | var:v
                      {: RESULT = v; :}
                      | ID:i LPAREN arg_list:a RPAREN
-                     {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null), a); :}
+                     {: RESULT = new CallExp(ileft, iright, new VarExp(ileft, iright, i, null,0), a); :}
                      | NUM:n
                      {: RESULT = new IntExp(nleft, nright, n); :}
                      |LPAREN error:e RPAREN

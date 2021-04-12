@@ -9,45 +9,45 @@ public class ShowTreeVisitor implements AbsynVisitor {
       System.out.print(" ");
   }
 
-  public void visit(ExpList expList, int level) {
+  public void visit(ExpList expList, int level, boolean isAddr) {
     while (expList != null) {
-      expList.head.accept(this, level);
+      expList.head.accept(this, level, isAddr);
       expList = expList.tail;
     }
   }
 
-  public void visit(AssignExp exp, int level) {
+  public void visit(AssignExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("AssignExp:");
     level++;
-    exp.type.accept(this, level);
-    exp.name.accept(this, level);
+    exp.type.accept(this, level, isAddr);
+    exp.name.accept(this, level, isAddr);
     if (exp.num != null)
-      exp.num.accept(this, level);
+      exp.num.accept(this, level, isAddr);
   }
 
-  public void visit(IfExp exp, int level) {
+  public void visit(IfExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("IfExp:");
     level++;
     if (exp.test != null) {
-      exp.test.accept(this, level);
+      exp.test.accept(this, level, isAddr);
     } else {
       indent(level);
       System.out.println("Error test case not found");
     }
-    exp.thenpart.accept(this, level);
+    exp.thenpart.accept(this, level, isAddr);
     if (exp.elsepart != null) {
       level--;
       indent(level);
       System.out.println("ElseExp:");
       level++;
-      exp.elsepart.accept(this, level);
+      exp.elsepart.accept(this, level, isAddr);
     }
 
   }
 
-  public void visit(IntExp exp, int level) {
+  public void visit(IntExp exp, int level, boolean isAddr) {
     indent(level);
     if (exp.value == null)
       System.out.println("IntExp: Error value not found");
@@ -55,7 +55,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
       System.out.println("IntExp: " + exp.value);
   }
 
-  public void visit(OpExp exp, int level) {
+  public void visit(OpExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.print("OpExp:");
     switch (exp.op) {
@@ -98,21 +98,21 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
   }
 
-  public void visit(RepeatExp exp, int level) {
+  public void visit(RepeatExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("RepeatExp:");
     level++;
     if (exp.test != null) {
-      exp.test.accept(this, level);
+      exp.test.accept(this, level, isAddr);
     } else {
       indent(level);
       System.out.println("Error test case not found");
     }
     if (exp.exps != null)
-      exp.exps.accept(this, level);
+      exp.exps.accept(this, level, isAddr);
   }
 
-  public void visit(VarExp exp, int level) {
+  public void visit(VarExp exp, int level, boolean isAddr) {
     indent(level);
     if (exp.name == null) {
       System.out.println("VarExp: Error name not found");
@@ -120,10 +120,14 @@ public class ShowTreeVisitor implements AbsynVisitor {
       System.out.println("VarExp: " + exp.name);
     }
     if (exp.exprs != null)
-      exp.exprs.accept(this, level);
+      exp.exprs.accept(this, level, isAddr);
+    if(exp.array==1){
+      indent(level);
+      System.out.println("IntExp: -1");
+    }
   }
 
-  public void visit(TypeExp exp, int level) {
+  public void visit(TypeExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.print("TypeExp: ");
     switch (exp.type) {
@@ -138,17 +142,17 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
   }
 
-  public void visit(FunExp exp, int level) {
+  public void visit(FunExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("FunExp: ");
     level++;
-    exp.type.accept(this, level);
-    exp.name.accept(this, level);
+    exp.type.accept(this, level, isAddr);
+    exp.name.accept(this, level, isAddr);
     if (exp.params != null) {
       indent(level);
       System.out.println("ParamsExp: ");
       level++;
-      exp.params.accept(this, level);
+      exp.params.accept(this, level, isAddr);
     }
     level++;
     if (exp.compound != null) {
@@ -156,27 +160,27 @@ public class ShowTreeVisitor implements AbsynVisitor {
       indent(level);
       System.out.println("CompoundExp: ");
       level++;
-      exp.compound.accept(this, level);
+      exp.compound.accept(this, level, isAddr);
     }
   }
 
-  public void visit(ParListExp exp, int level) {
+  public void visit(ParListExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("ParListExp: ");
     level++;
-    exp.paramlist.accept(this, level);
-    exp.param.accept(this, level);
+    exp.paramlist.accept(this, level, isAddr);
+    exp.param.accept(this, level, isAddr);
   }
 
-  public void visit(ParamExp exp, int level) {
+  public void visit(ParamExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("ParamExp: ");
     level++;
-    exp.type.accept(this, level);
-    exp.name.accept(this, level);
+    exp.type.accept(this, level, isAddr);
+    exp.name.accept(this, level, isAddr);
   }
 
-  public void visit(CompExp exp, int level) {
+  public void visit(CompExp exp, int level, boolean isAddr) {
     indent(level);
     if (exp.first == null && exp.second == null) {
       System.out.println("Expression: Error missing values");
@@ -185,19 +189,19 @@ public class ShowTreeVisitor implements AbsynVisitor {
     }
     level++;
     if (exp.first != null)
-      exp.first.accept(this, level);
+      exp.first.accept(this, level, isAddr);
     if (exp.second != null)
-      exp.second.accept(this, level);
+      exp.second.accept(this, level, isAddr);
   }
 
-  public void visit(ReturnExp exp, int level) {
+  public void visit(ReturnExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("ReturnExp: ");
     level++;
-    exp.exps.accept(this, level);
+    exp.exps.accept(this, level, isAddr);
   }
 
-  public void visit(MathExp exp, int level) {
+  public void visit(MathExp exp, int level, boolean isAddr) {
     indent(level);
     switch (exp.type) {
     case MathExp.SIMPLE:
@@ -213,18 +217,18 @@ public class ShowTreeVisitor implements AbsynVisitor {
       System.out.println("Unrecognized statement at line " + exp.row + " and column " + exp.col);
     }
     level++;
-    exp.lhs.accept(this, level);
-    exp.op.accept(this, level);
-    exp.rhs.accept(this, level);
+    exp.lhs.accept(this, level, isAddr);
+    exp.op.accept(this, level, isAddr);
+    exp.rhs.accept(this, level, isAddr);
   }
 
-  public void visit(CallExp exp, int level) {
+  public void visit(CallExp exp, int level, boolean isAddr) {
     indent(level);
     System.out.println("CallExp: ");
     level++;
-    exp.name.accept(this, level);
+    exp.name.accept(this, level, isAddr);
     if (exp.args != null)
-      exp.args.accept(this, level);
+      exp.args.accept(this, level, isAddr);
   }
 
 }

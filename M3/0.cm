@@ -1,14 +1,17 @@
 /* There are no errors in this file
    This tests arrays, math, and the output function.
-   Output will be 5 followed by 12
+   Output will be 5
 */
+void test(int a[]){
+    output(a[0]);
+    output(a[1]);
+}
 
 void main(void) {
-    int o[2]; int y;
-    y = 10;
+    int o[2];
 
     o[0] = 5;
-    o[1] = o[0] + 7;
-    output(o[0]);
-    output(o[1]);
+    o[1] = 7;
+    
+    test(o);
 }

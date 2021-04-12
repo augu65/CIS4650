@@ -11,9 +11,10 @@ public class CompExp extends Exp {
         this.first = first;
         this.second = second;
         this.def = null;
+        this.info = null;
     }
 
-    public void accept(AbsynVisitor visitor, int level) {
-        visitor.visit(this, level);
+    public void accept(AbsynVisitor visitor, int level, boolean isAddr) {
+        visitor.visit(this, level, isAddr);
     }
 }

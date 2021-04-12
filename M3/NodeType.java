@@ -3,13 +3,15 @@
   File Name: NodeType.java
 */
 public class NodeType {
-    public String name;
-    public String def;
-    public int level;
+  public String name;
+  public String def;
+  public int level;
+  public int offset;
 
-    public NodeType(String name, String def, int level) {
-        this.name = name;
-        this.def = def;
-        this.level = level;
-    }
+  public NodeType(String name, String def, int level, int offset) {
+    this.name = name;
+    this.def = def;
+    this.level = level;
+    this.offset = offset;
+  }
 }

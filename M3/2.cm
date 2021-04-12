@@ -1,23 +1,18 @@
-/* Invalid access of an array on line 17
-   Error: VOID type cannot be used to access array, at line:17 column:16
-
-   Adition attemped with void and int types on line 20
-   Error: Invalid types for equation, at line:20 column:10
-
-   Function call missing paramaters on line 22
-   Error: Invalid function call, at line:22 column:4
+/* There are no errors in this file
+   This tests while statments, math,and the output function.
+   Output will be 128
 */
 
-void foo(int a, int b, int c){
+void main(void) {
+  int x; int y;
 
-}
+  x = 7;
+  y = 1;
 
-void main(void){
-    int a[2]; int x; int y;
-    a[foo(x,x,x)] = 1;
+  while (x > 1) {
+    x = x - 1;
+    y = y * 2;
+  } 
 
-    x = x * 2 + 1;
-    y = x + foo(x,x,x);
-
-    foo();
+  output(y);
 }

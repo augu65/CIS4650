@@ -18,9 +18,10 @@ public class OpExp extends Exp {
     this.row = row;
     this.col = col;
     this.op = op;
+    this.info = null;
   }
 
-  public void accept(AbsynVisitor visitor, int level) {
-    visitor.visit(this, level);
+  public void accept(AbsynVisitor visitor, int level, boolean isAddr) {
+    visitor.visit(this, level, isAddr);
   }
 }

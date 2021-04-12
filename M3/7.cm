@@ -1,0 +1,26 @@
+/* Invalid type on line 16
+   Error will print stating "Error : Invalid value for array size"
+   Tree will display IntExp as "Error value not found"
+
+   Invalid while condition on line 19
+   Error will print "Error : Invalid while condition"
+   Tree will display "RepeatExp:" followed by "Error test case not found"
+
+   Invalid if condition on line 22
+   Error will print "Error : Invalid if condition"
+   Tree will display "IfExp:" followed by "Error test case not found"
+
+   This will also crash due to these being nonrecoverable errors
+ */
+
+int a[];
+
+int main( int t){
+    while(){
+        t=1+1;
+    }
+    if (){
+        int j;
+    }
+    return 0;
+}

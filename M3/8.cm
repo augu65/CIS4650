@@ -1,0 +1,17 @@
+/* Invalid factor on line 14
+   Error will print stating "Error : parameter list"
+   Tree will display nothing for ParamsExp under the function call
+
+   Invalid factor on line 16
+   Error will print stating "Error : Invalid factor"
+   Tree will display Expression as "Error missing values"
+
+   This will also crash the simulator due to these being nonrecoverable errors
+ */
+
+int a[8];
+
+int main( ,int t, int j){
+    j = j + 0;
+    t=t*();
+}

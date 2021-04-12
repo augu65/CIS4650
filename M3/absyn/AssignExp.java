@@ -4,6 +4,8 @@ public class AssignExp extends Exp {
   public VarExp name;
   public Exp type;
   public IntExp num;
+  public int nestLevel; // 0 for global, 1 for local
+  public int offset;
 
   public AssignExp(int row, int col, VarExp name, IntExp num, Exp type) {
     this.row = row;
@@ -13,7 +15,7 @@ public class AssignExp extends Exp {
     this.type = type;
   }
 
-  public void accept(AbsynVisitor visitor, int level) {
-    visitor.visit(this, level);
+  public void accept(AbsynVisitor visitor, int level, boolean isAddr) {
+    visitor.visit(this, level, isAddr);
   }
 }

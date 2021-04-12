@@ -1,25 +1,25 @@
-/* Variables defined as void type on lines 15 and 16
-      -> Variables will be then stored as INT type to avoid repeated errors
-   Error: variables cannot be defined as VOID type, at line:15 column:10
-   Error: variables cannot be defined as VOID type, at line:16 column:4
+/* Invalid access of an array on line 19
+   Error: VOID type cannot be used to access array, at line:19 column:16
 
-   Attempting to set INT array to an INT on line 22
-   Error: Invalid types for statement, at line:22 column:4
+   Adition attemped with void and int types on line 22
+   Error: Invalid types for equation, at line:22 column:10
 
-   Attempting to set 2 arrays equal to each other on line 24
-   Error: Arrays cannot be used in assinments, at line:24 column:4
+   Function call missing paramaters on line 24
+   Error: Invalid function call, at line:24 column:4
+
+   This will also crash the simulator due to these being nonrecoverable errors
 */
 
-int b[2];
+void foo(int a, int b, int c){
 
-void main(void y){
-    void a;
-    int c;
-    int d[3];
+}
 
-    a = 1 / 2 + a;
+void main(void){
+    int a[2]; int x; int y;
+    a[foo(x,x,x)] = 1;
 
-    c = b;
+    x = x * 2 + 1;
+    y = x + foo(x,x,x);
 
-    d = b;
+    foo();
 }
